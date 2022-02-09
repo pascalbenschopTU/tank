@@ -46,6 +46,14 @@ class Bullet extends Entity {
   }
 
   /**
+   * Return copy.
+   * @returns {Bullet}
+   */
+  copy() {
+    return new Bullet(this.position, this.velocity, this.angle, this.source);
+  }
+
+  /**
    * Performs a physics update.
    * @param {number} lastUpdateTime The last timestamp an update occurred
    * @param {number} deltaTime The timestep to compute the update with

@@ -28,6 +28,7 @@ class Level {
     init() {
         this.levels.push(this.levelOne());
         this.levels.push(this.levelTwo());
+        this.levels.push(this.levelThree());
     }
 
     /**
@@ -86,6 +87,22 @@ class Level {
         return this.makeLevel(level);
     }
 
+    levelThree() {
+        var level = [
+            ["*****W******"],
+            ["P****W**BB**"],
+            ["*****W**BB**"],
+            ["**W**WWW****"],
+            ["**W*********"],
+            ["**WWWW**BB**"],
+            ["P****W**BB**"],
+            ["**W**W******"]
+
+        ]
+
+        return this.makeLevel(level);
+    }
+
 
     /**
      * Make a level.
@@ -93,16 +110,14 @@ class Level {
      */
     makeLevel(level) {
         var gm = new GameMap();
-        var x = 0;
-        var y = 0;
+        var y = 50;
         for (let i = 0; i < level.length; i++) {
-            x = 0;
+            var x = 50;
             var string = level[i][0];
             for (let j = 0; j < string.length; j++) {
-                x += 100;
                 switch(string[j]) {
                     case "W":
-                        gm.makeWall(new Vector(x, y), 100, 200);
+                        gm.makeWall(new Vector(x, y), 100, 100);
                         break;
                     case "B":
                         gm.makeBot(new Vector(x, y));
@@ -113,6 +128,7 @@ class Level {
                     default:
                         break;
                 }
+                x += 100;
             }
 
             y += 100;

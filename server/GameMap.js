@@ -1,5 +1,5 @@
 const Wall = require('./Wall');
-const SimpleEnemy = require('./SimpleEnemy');
+const SimpleEnemy = require('./entities/SimpleEnemy');
 const Vector = require('../lib/Vector');
 
 /**
@@ -17,15 +17,30 @@ class GameMap {
     }
 
     get gameBots() {
-        return [...this.bots.values()];
+        var result = []
+        this.bots.forEach(bot => {
+            result.push(bot.copy());
+        });
+
+        return result;
     }
 
     get gameWalls() {
-        return [...this.walls.values()];
+        var result = []
+        this.walls.forEach(wall => {
+            result.push(wall.copy());
+        });
+
+        return result;
     }
 
     get gamePlayerPositions() {
-        return [...this.playerPositions.values()];
+        var result = []
+        this.playerPositions.forEach(playerPosition => {
+            result.push(playerPosition.copy());
+        });
+
+        return result;
     }
 
     /**

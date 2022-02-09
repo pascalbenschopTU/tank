@@ -66,7 +66,9 @@ class Game {
      * @param {Object} socket 
      */
     addnewPlayer(name, socket) {
-        if (this.totalPlayers > this.playerPositions.length) this.totalPlayers--;
+        if (this.totalPlayers > this.playerPositions.length - 1) {
+            this.totalPlayers = 0;
+        }
 
         this.clients.set(socket.id, socket);
         this.players.set(socket.id, Player.create(
@@ -99,17 +101,6 @@ class Game {
             const player = this.players.get(socketID)
             this.players.delete(socketID)
             return player.name
-        }
-    }
-
-    /**
-     * Returns the name of the player with the given socket id.
-     * @param {string} socketID The socket id to look up.
-     * @return {string}
-     */
-    getPlayerNameBySocketId(socketID) {
-        if (this.players.has(socketID)) {
-            return this.players.get(socketID).name
         }
     }
 
@@ -208,14 +199,32 @@ class Game {
      * Update the level to the next level.
      */
     updateLevel() {
+        this.clearLevel();
+
+        this.syncDelay(3000);
+
         const gameMap = this.level.current();
         this.bots = gameMap.gameBots;
         this.walls = gameMap.gameWalls;
         this.playerPositions = gameMap.gamePlayerPositions;
 
+        this.clients.forEach((client, socketID) => {
+            this.addnewPlayer(Constants.PLAYER_NAME, this.clients.get(socketID));
+        });
+
         for (let i = 0; i < this.bots.length; i++) {
             this.players.set(i, this.bots[i]);
         }
+    }
+
+    /**
+     * Clear the level.
+     */
+    clearLevel() {
+        this.players.clear();
+        this.bots = [];
+        this.walls = [];
+        this.playerPositions = [];
     }
 
     /**
@@ -259,11 +268,22 @@ class Game {
      */
      sendMap() {
         this.clients.forEach((client, socketID) => {
-            this.clients.get(socketID).emit(Constants.SOCKET_MAP_UPDATE, {
-                walls: this.walls
-            })
+            if (this.players.has(socketID)) {
+                this.clients.get(socketID).emit(Constants.SOCKET_MAP_UPDATE, {
+                    walls: this.walls
+                })
+            }
         })
     }
+
+
+    syncDelay(milliseconds){
+        var start = new Date().getTime();
+        var end=0;
+        while( (end-start) < milliseconds){
+            end = new Date().getTime();
+        }
+       }
 }
 
 module.exports = Game

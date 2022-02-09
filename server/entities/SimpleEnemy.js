@@ -24,6 +24,8 @@ class SimpleEnemy extends Player {
 
         this.closestPlayer = null;
 
+        this.botToPlayerAngle = 0;
+
         this.bullets = 1;
     } 
 
@@ -34,9 +36,26 @@ class SimpleEnemy extends Player {
      * @returns 
      */
     canShoot(walls) {  
-        return this.checkPlayerInSight(walls)
-            && this.lastUpdateTime > this.lastShotTime + this.shotCooldown 
+        return this.checkPlayerReachable(walls)
+            && this.checkPlayerInSight() 
+            && this.checkBotCooldown() 
             && this.bullets > 0;
+    }
+
+    /**
+     * Check if bot can shoot based on cooldown.
+     * @returns {Boolean}
+     */
+    checkBotCooldown() {
+        return this.lastUpdateTime > this.lastShotTime + this.shotCooldown 
+    }
+
+    /**
+     * Check if player in sight.
+     * @returns {Boolean}
+     */
+    checkPlayerInSight() {
+        return Util.inBound(this.botToPlayerAngle, this.turretAngle - 0.1, this.turretAngle + 0.1);
     }
     
     /**
@@ -45,7 +64,7 @@ class SimpleEnemy extends Player {
      * @param {Array<Wall} walls 
      * @returns 
      */
-    checkPlayerInSight(walls) {
+    checkPlayerReachable(walls) {
         var result = true;
         if (this.closestPlayer != null) {
             var D = Vector.fromPolar(1, this.turretAngle);
@@ -98,6 +117,14 @@ class SimpleEnemy extends Player {
         return player
     }
 
+    /**
+     * Return copy.
+     * @returns {SimpleEnemy}
+     */
+    copy() {
+        return new SimpleEnemy(this.position);
+    }
+
 
     /**
      * Spawn simple enemy.
@@ -147,9 +174,9 @@ class SimpleEnemy extends Player {
             }
 
             const playerToBotVector = Vector.sub(this.closestPlayer.position, this.position);
-            const normalizedAngle = Util.normalizeAngle(playerToBotVector.angle)
+            this.botToPlayerAngle = Util.normalizeAngle(playerToBotVector.angle)
 
-            this.updateTurretAngle(normalizedAngle);
+            this.updateTurretAngle(this.botToPlayerAngle);
 
             if (evasive) {
                 this.moveAway(b);
@@ -206,9 +233,9 @@ class SimpleEnemy extends Player {
     moveAway(bullet) {
         if (Math.abs(this.tankAngle - bullet.angle) > Math.PI / 2) {
             this.turnRate = 0;
-            this.velocity = Vector.fromPolar(this.speed * 2, this.tankAngle);
+            this.velocity = Vector.fromPolar(this.speed, this.tankAngle);
         } else {
-            this.velocity = Vector.fromPolar(-this.speed * 2, this.tankAngle);
+            this.velocity = Vector.fromPolar(-this.speed, this.tankAngle);
             this.turnRate = Constants.PLAYER_TURN_RATE;
         }
     }
