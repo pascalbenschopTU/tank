@@ -1,10 +1,10 @@
-const Bullet = require("./Bullet");
-const Player = require("./Player");
+const Bullet = require("./entities/Bullet");
+const Player = require("./entities/Player");
+const SimpleEnemy = require("./entities/SimpleEnemy");
 
 const Constants = require("../lib/Constants");
 const Wall = require("./Wall");
 const Vector = require("../lib/Vector");
-const SimpleEnemy = require("./SimpleEnemy");
 const GameMap = require('./GameMap');
 const Level = require("./Level");
 
