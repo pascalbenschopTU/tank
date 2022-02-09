@@ -1,0 +1,5 @@
+https://github.com/generalmimon/tank-game/blob/5f3bf5e751d937e707ccc3e9f14190db45d5840a/game.js#L317
+https://medium.com/hackernoon/how-to-build-a-multiplayer-browser-game-4a793818c29b
+https://github.com/penumbragames/tankanarchy
+https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
