@@ -26,7 +26,7 @@ class SimpleEnemy extends Player {
 
         this.botToPlayerAngle = 0;
 
-        this.bullets = 1;
+        this.bullets = 5;
     } 
 
 

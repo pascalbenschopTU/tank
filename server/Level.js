@@ -29,6 +29,7 @@ class Level {
         this.levels.push(this.levelOne());
         this.levels.push(this.levelTwo());
         this.levels.push(this.levelThree());
+        this.levels.push(this.levelFour());
     }
 
     /**
@@ -47,7 +48,6 @@ class Level {
 
             return levelToReturn;
         }
-        
     }
 
     /**
@@ -104,6 +104,23 @@ class Level {
     }
 
 
+    levelFour() {
+        var level = [
+            ["************"],
+            ["P****WWW****"],
+            ["**W**WB*****"],
+            ["**WB*WB*****"],
+            ["**WWWWWWW***"],
+            ["****BWB*W***"],
+            ["P****W**W***"],
+            ["***WWW******"]
+
+        ]
+
+        return this.makeLevel(level);
+    }
+
+
     /**
      * Make a level.
      * @param {Array} level 
@@ -136,6 +153,40 @@ class Level {
 
         return gm;
     }
+
+
+    // /**
+    //  * Make the walls.
+    //  * @param {Array} level 
+    //  */
+    // makeWall(level) {
+    //     var minX = 50;
+    //     var maxX = 50;
+    //     var minY = 50;
+    //     var maxY = 50;
+        
+    //     var y = 50;
+        
+    //     let current = "";
+
+    //     for (let i = 0; i < level.length; i++) {
+    //         var x = 50;
+
+
+    //         var string = level[i][0];
+    //         previous = false;
+    //         for (let j = 0; j < string.length; j++) {
+    //             if (string[j] == "W") {
+    //                 if (previous) {
+    //                     maxX = 
+    //                 }
+    //                 previous = true;
+    //             }
+    //             current = string[j];
+                
+    //         }
+    //     }
+    // }
 }
 
 module.exports = Level

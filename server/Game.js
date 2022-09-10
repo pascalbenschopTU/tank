@@ -201,7 +201,7 @@ class Game {
     updateLevel() {
         this.clearLevel();
 
-        this.syncDelay(3000);
+        this.syncDelay(500);
 
         const gameMap = this.level.current();
         this.bots = gameMap.gameBots;
