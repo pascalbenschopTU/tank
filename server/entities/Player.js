@@ -115,7 +115,9 @@ class Player extends Entity {
     });
   }
 
-
+  /**
+   * TODO: Fix tank running into wall between 2 walls
+   */
   reverseBound() {
     if (Util.inBound(this.position.x, minX, maxX)) {
 
