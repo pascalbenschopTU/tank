@@ -1,3 +1,4 @@
+const Constants = require("../lib/Constants");
 const Vector = require("../lib/Vector");
 const GameMap = require("./GameMap");
 
@@ -106,15 +107,18 @@ class Level {
 
     levelFour() {
         var level = [
-            ["************"],
-            ["P****WWW****"],
-            ["**W**WB*****"],
-            ["**WB*WB*****"],
-            ["**WWWWWWW***"],
-            ["****BWB*W***"],
-            ["P****W**W***"],
-            ["***WWW******"]
-
+            ["******W**************"],
+            ["******W*****W*****B**"],
+            ["*P****W*****W********"],
+            ["*****WW*****WWW***B**"],
+            ["*********************"],
+            ["*******WWW********B**"],
+            ["*********W****W******"],
+            ["************WWW***B**"],
+            ["*****WWW****W********"],
+            ["*****W************B**"],
+            ["*****W*******WW******"],
+            ["**************W***B**"]
         ]
 
         return this.makeLevel(level);
@@ -127,66 +131,32 @@ class Level {
      */
     makeLevel(level) {
         var gm = new GameMap();
-        var y = 50;
+        var y = Constants.CANVAS_HEIGHT / level.length
+        var new_y = y / 2
         for (let i = 0; i < level.length; i++) {
-            var x = 50;
+            var x = Constants.CANVAS_WIDTH / level[i][0].length
+            var new_x = x / 2
             var string = level[i][0];
             for (let j = 0; j < string.length; j++) {
                 switch(string[j]) {
                     case "W":
-                        gm.makeWall(new Vector(x, y), 100, 100);
+                        gm.makeWall(new Vector(new_x, new_y), x + 1, y + 1); // To make walls more overlapping add small value
                         break;
                     case "B":
-                        gm.makeBot(new Vector(x, y));
+                        gm.makeBot(new Vector(new_x, new_y));
                         break;
                     case "P":
-                        gm.makePlayerPosition(new Vector(x, y));
+                        gm.makePlayerPosition(new Vector(new_x, new_y));
                         break;
                     default:
                         break;
                 }
-                x += 100;
+                new_x += x;
             }
-
-            y += 100;
+            new_y += y;
         }
-
         return gm;
     }
-
-
-    // /**
-    //  * Make the walls.
-    //  * @param {Array} level 
-    //  */
-    // makeWall(level) {
-    //     var minX = 50;
-    //     var maxX = 50;
-    //     var minY = 50;
-    //     var maxY = 50;
-        
-    //     var y = 50;
-        
-    //     let current = "";
-
-    //     for (let i = 0; i < level.length; i++) {
-    //         var x = 50;
-
-
-    //         var string = level[i][0];
-    //         previous = false;
-    //         for (let j = 0; j < string.length; j++) {
-    //             if (string[j] == "W") {
-    //                 if (previous) {
-    //                     maxX = 
-    //                 }
-    //                 previous = true;
-    //             }
-    //             current = string[j];
-                
-    //         }
-    //     }
-    // }
 }
 
 module.exports = Level

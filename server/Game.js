@@ -158,9 +158,9 @@ class Game {
                     e2 = entities[i]
                 }
                 if (e1 instanceof Player && e2 instanceof Bullet) {
-                    e1.deaths++
-                    e2.source.kills++
                     if (e2.source != e1) {
+                        e1.deaths++
+                        e2.source.kills++
                         e1.destroyed = true;
                         e2.destroyed = true;
                         console.log("kill");

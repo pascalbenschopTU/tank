@@ -151,39 +151,42 @@ class SimpleEnemy extends Player {
                     }
                 }
             }
-
-            var evasive = false;
-            var b = null
-
-            for (let i = 0; i < projectiles.length; i++) {
-                b = projectiles[i]
-                if (b.source != this) {
-                    var t = this.position.distance(b.position);
-                    if (t > 400) {
-                        continue;
-                    }
-                    var d = b.velocity.normalize;
-                    var p = Vector.add(b.position, Vector.scale(d, t));
-
-                    if (this.collidedAt(projectiles[i], p)) {
-                        evasive = true;
-                        break;
-                    }
-                }
-                
-            }
-
             const playerToBotVector = Vector.sub(this.closestPlayer.position, this.position);
             this.botToPlayerAngle = Util.normalizeAngle(playerToBotVector.angle)
 
             this.updateTurretAngle(this.botToPlayerAngle);
-
-            if (evasive) {
-                this.moveAway(b);
-            } else {
-                this.moveToPlayer(closestDistance);
-            }
         }
+
+        
+        //     var evasive = false;
+        //     var b = null
+
+        //     for (let i = 0; i < projectiles.length; i++) {
+        //         b = projectiles[i]
+        //         if (b.source != this) {
+        //             var t = this.position.distance(b.position);
+        //             if (t > 400) {
+        //                 continue;
+        //             }
+        //             var d = b.velocity.normalize;
+        //             var p = Vector.add(b.position, Vector.scale(d, t));
+
+        //             if (this.collidedAt(projectiles[i], p)) {
+        //                 evasive = true;
+        //                 break;
+        //             }
+        //         }
+                
+        //     }
+
+            
+
+        //     if (evasive) {
+        //         this.moveAway(b);
+        //     } else {
+        //         this.moveToPlayer(closestDistance);
+        //     }
+        // }
     }
 
     /**
@@ -226,36 +229,36 @@ class SimpleEnemy extends Player {
         }
     }
 
-    /**
-     * Move away from bullet.
-     * @param {Bullet} bullet 
-     */
-    moveAway(bullet) {
-        if (Math.abs(this.tankAngle - bullet.angle) > Math.PI / 2) {
-            this.turnRate = 0;
-            this.velocity = Vector.fromPolar(this.speed, this.tankAngle);
-        } else {
-            this.velocity = Vector.fromPolar(-this.speed, this.tankAngle);
-            this.turnRate = Constants.PLAYER_TURN_RATE;
-        }
-    }
+    // /**
+    //  * Move away from bullet.
+    //  * @param {Bullet} bullet 
+    //  */
+    // moveAway(bullet) {
+    //     if (Math.abs(this.tankAngle - bullet.angle) > Math.PI / 2) {
+    //         this.turnRate = 0;
+    //         this.velocity = Vector.fromPolar(this.speed, this.tankAngle);
+    //     } else {
+    //         this.velocity = Vector.fromPolar(-this.speed, this.tankAngle);
+    //         this.turnRate = Constants.PLAYER_TURN_RATE;
+    //     }
+    // }
 
-    /**
-     * Move to closest player.
-     * @param {Number} closestDistance 
-     */
-    moveToPlayer(closestDistance) {
-        this.velocity = Vector.fromPolar(this.speed, this.tankAngle);
+    // /**
+    //  * Move to closest player.
+    //  * @param {Number} closestDistance 
+    //  */
+    // moveToPlayer(closestDistance) {
+    //     this.velocity = Vector.fromPolar(this.speed, this.tankAngle);
 
-        if (closestDistance < 400) {
-            this.turnRate = Constants.PLAYER_TURN_RATE;
-        } else if (closestDistance > 700 && 
-            (this.tankAngle < this.turretAngle -0.1 || this.tankAngle > this.turretAngle + 0.1)) {
-            this.turnRate = -Constants.PLAYER_TURN_RATE;
-        } else {
-            this.turnRate = 0;
-        }
-    }
+    //     if (closestDistance < 400) {
+    //         this.turnRate = Constants.PLAYER_TURN_RATE;
+    //     } else if (closestDistance > 700 && 
+    //         (this.tankAngle < this.turretAngle -0.1 || this.tankAngle > this.turretAngle + 0.1)) {
+    //         this.turnRate = -Constants.PLAYER_TURN_RATE;
+    //     } else {
+    //         this.turnRate = 0;
+    //     }
+    // }
 
 
 

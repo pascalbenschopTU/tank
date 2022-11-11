@@ -48,8 +48,8 @@ class Game {
    */
   static create(socket, canvasElementID, textboxElementID) {
     const canvas = document.getElementById(canvasElementID)
-    canvas.width = Constants.CANVAS_WIDTH
-    canvas.height = Constants.CANVAS_HEIGHT
+    canvas.width = Constants.CANVAS_WIDTH // = document.documentElement.clientWidth * 0.6
+    canvas.height = Constants.CANVAS_HEIGHT //= document.documentElement.clientHeight * 0.7
 
     const textbox = document.getElementById(textboxElementID)
     
@@ -144,9 +144,7 @@ class Game {
     if (this.self) {
       this.drawing.clear()
 
-      //this.drawing.drawTiles()
-
-      this.projectiles.forEach(this.drawing.drawBullet.bind(this.drawing))
+      this.projectiles.forEach(projectile => this.drawing.drawBullet(projectile, 15, 25))
 
       this.players.forEach(tank => this.drawing.drawTank(false, tank))
       this.drawing.drawTank(true, this.self)

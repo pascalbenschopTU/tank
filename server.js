@@ -55,5 +55,5 @@ setInterval(() => {
 
 
 server.listen(Constants.PORT, function() {
-  console.log('Starting server on port 5000');
+  console.log('Starting server on port %s', Constants.PORT);
 });
