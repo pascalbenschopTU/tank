@@ -15,12 +15,11 @@ const Constants = require('./lib/Constants');
 const game = Game.create(); //new Game();
 
 
-
-
 app.set('port', Constants.PORT);
+
+// Allow static content to be served
 app.use('/client', express.static(path.join(__dirname, '/client')));
 app.use('/dist', express.static(path.join(__dirname, '/dist')));
-// app.use('/public', express.static(__dirname + '/public'));
 
 // Routing
 app.get('/', function(request, response) {
