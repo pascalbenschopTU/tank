@@ -32,7 +32,6 @@ app.get('/', function(request, response) {
 io.on('connection', socket => {
   socket.on(Constants.SOCKET_NEW_PLAYER, (data, callback) => {
     game.addnewPlayer("kek", socket);
-    //callback();
   })
 
   socket.on(Constants.SOCKET_RESET, () => {
