@@ -107,9 +107,23 @@ class GameMap {
             }
             surroundings.push(surroundingsX);
         }
-        console.log(surroundings);
 
         return surroundings;
+    }
+
+    /**
+     * Get the state from a position
+     * @param {Vector} position 
+     * @returns {number}
+     */
+    getStateFromPosition(position) {
+        var x = Math.round((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x - 1));
+        var y = Math.round((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y - 1));
+
+        if (this.levelData[x][0][y] == "W")
+            return 1;
+        else
+            return 0;
     }
 }
 

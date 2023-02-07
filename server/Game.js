@@ -252,8 +252,7 @@ class Game {
     updateBot(players, projectiles) {
         for (let i = 0; i < this.bots.length; i++) {
             const bot = this.bots[i];
-            bot.updateSurroundings(this.gameMap)
-            bot.updateOnPlayerInput(players, projectiles);
+            bot.updateOnPlayerInput(players, this.gameMap);
             if (bot.canShoot(this.walls)) {
                 const botProjectiles = bot.getProjectilesFromShot()
                 projectiles.push(...botProjectiles)
