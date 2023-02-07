@@ -29,6 +29,32 @@ class SimpleEnemy extends Player {
         this.bullets = 5;
     } 
 
+    /**
+     * Creates a new Player object.
+     * @param {Vector} position
+     * @return {Player}
+     */
+    static create(position) {
+        const player = new SimpleEnemy(position)
+        player.spawn()
+        return player
+    }
+
+    /**
+     * Return copy.
+     * @returns {SimpleEnemy}
+     */
+    copy() {
+        return new SimpleEnemy(this.position);
+    }
+
+
+    /**
+     * Spawn simple enemy.
+     */
+    spawn() {
+        this.angle = Util.randRange(0, 2 * Math.PI)
+    }
 
     /**
      * Check if bot can shoot.
@@ -105,32 +131,12 @@ class SimpleEnemy extends Player {
         }
     }
 
-
     /**
-     * Creates a new Player object.
-     * @param {Vector} position
-     * @return {Player}
+     * Update the surroundings of a bot based on position
+     * @param {GameMap} gameMap 
      */
-    static create(position) {
-        const player = new SimpleEnemy(position)
-        player.spawn()
-        return player
-    }
-
-    /**
-     * Return copy.
-     * @returns {SimpleEnemy}
-     */
-    copy() {
-        return new SimpleEnemy(this.position);
-    }
-
-
-    /**
-     * Spawn simple enemy.
-     */
-    spawn() {
-        this.angle = Util.randRange(0, 2 * Math.PI)
+    updateSurroundings(gameMap) {
+        gameMap.getSurroundings(this.position);
     }
 
     /**

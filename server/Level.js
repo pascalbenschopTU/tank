@@ -131,6 +131,9 @@ class Level {
      */
     makeLevel(level) {
         var gm = new GameMap();
+        gm.setLevelSize(new Vector(level[0][0].length, level.length))
+        gm.setLevelData(level);
+
         var y = Constants.CANVAS_HEIGHT / level.length
         var new_y = y / 2
         for (let i = 0; i < level.length; i++) {

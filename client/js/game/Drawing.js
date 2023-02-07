@@ -133,6 +133,13 @@ class Drawing {
     };
   }
   
+  /**
+   * 
+   * @param {Player} player 
+   * @param {string} colour 
+   * @param {number} width 
+   * @param {number} length 
+   */
   drawTankSkeleton(player, colour, width, length) {
       this.context.save();
   
@@ -149,7 +156,6 @@ class Drawing {
       this.context.fill();
       this.context.restore();
   }
-  
   
   
   drawTurret(player, colour, diameter, width, length) {
