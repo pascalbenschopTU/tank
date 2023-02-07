@@ -2,8 +2,10 @@ const Vector = require('../../lib/Vector');
 const Player = require('./Player');
 const Util = require('../../lib/Util');
 const Constants = require('../../lib/Constants');
+const Level = require('../Level');
 
 const tf = require('@tensorflow/tfjs');
+
 
 /**
  * Simple enemy class.
@@ -117,19 +119,19 @@ class SimpleEnemy extends Player {
 
     /**
      * Update the surroundings of a bot based on position
-     * @param {GameMap} gameMap 
+     * @param {Level} level 
      */
-    updateSurroundings(gameMap) {
-        this.surroundings = gameMap.getSurroundings(this.position);
+    updateSurroundings(level) {
+        this.surroundings = level.getSurroundings(this.position);
     }
 
     /**
      * Update input on players.
      * @param {Array<Player>} players
-     * @param {GameMap} gameMap
+     * @param {Level} level
      */
-    updateOnPlayerInput(players, gameMap) {
-        this.updateSurroundings(gameMap);
+    updateOnPlayerInput(players, level) {
+        this.updateSurroundings(level);
 
         if (players && players.length > 1) {
             this.closestPlayer = players[0];

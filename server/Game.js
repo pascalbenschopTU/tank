@@ -1,8 +1,8 @@
 const Bullet = require("./entities/Bullet");
 const Player = require("./entities/Player");
 const Constants = require("../lib/Constants");
-const GameMap = require('./GameMap');
 const Level = require("./Level");
+const SimpleEnemy = require("./entities/SimpleEnemy");
 
 
 class Game {
@@ -16,8 +16,7 @@ class Game {
         this.players = new Map();
         this.totalPlayers = 0;
 
-        this.level = Level.create();
-        this.gameMap = new GameMap();
+        this.level = new Level();
 
         this.bots = [];
         this.walls = [];
@@ -200,10 +199,10 @@ class Game {
 
         this.syncDelay(500);
 
-        this.gameMap = this.level.current();
-        this.bots = this.gameMap.gameBots;
-        this.walls = this.gameMap.gameWalls;
-        this.playerPositions = this.gameMap.gamePlayerPositions;
+        this.level.updateCurrentLevel();
+        this.bots = this.level.gameBots.map(position => new SimpleEnemy(position));
+        this.walls = this.level.gameWalls;
+        this.playerPositions = this.level.gamePlayerPositions;
 
         this.clients.forEach((client, socketID) => {
             this.addnewPlayer(Constants.PLAYER_NAME, this.clients.get(socketID));
@@ -252,7 +251,7 @@ class Game {
     updateBot(players, projectiles) {
         for (let i = 0; i < this.bots.length; i++) {
             const bot = this.bots[i];
-            bot.updateOnPlayerInput(players, this.gameMap);
+            bot.updateOnPlayerInput(players, this.level);
             if (bot.canShoot(this.walls)) {
                 const botProjectiles = bot.getProjectilesFromShot()
                 projectiles.push(...botProjectiles)
