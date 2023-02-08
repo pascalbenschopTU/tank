@@ -213,8 +213,7 @@ class Level {
     getStateFromPosition(position) {
         var x = Math.round((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x - 1));
         var y = Math.round((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y - 1));
-
-        if (this.levelData[x][0][y] == "W")
+        if (this.levelData[y][0][x] == "W")
             return 1;
         else
             return 0;

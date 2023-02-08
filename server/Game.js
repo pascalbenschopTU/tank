@@ -1,8 +1,11 @@
 const Bullet = require("./entities/Bullet");
 const Player = require("./entities/Player");
-const Constants = require("../lib/Constants");
+const Constants = require('../lib/Constants');
 const Level = require("./Level");
 const SimpleEnemy = require("./entities/SimpleEnemy");
+const Model = require('../lib/AI/QLearning')
+const Memory = require('../lib/AI/Memory');
+const Orchestrator = require("../lib/AI/Orchestrator");
 
 
 class Game {
@@ -17,6 +20,15 @@ class Game {
         this.totalPlayers = 0;
 
         this.level = new Level();
+
+        this.layers = 4;
+        this.num_states = 4;
+        this.num_actions = 4;
+        this.batch_size = 100;
+        this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
+        this.memory = new Memory(1000);
+
+        this.orchestrator = new Orchestrator(this.model, this.memory);
 
         this.bots = [];
         this.walls = [];
@@ -200,7 +212,7 @@ class Game {
         this.syncDelay(500);
 
         this.level.updateCurrentLevel();
-        this.bots = this.level.gameBots.map(position => new SimpleEnemy(position));
+        this.bots = this.level.gameBots.map(position => new SimpleEnemy(position, this.level));
         this.walls = this.level.gameWalls;
         this.playerPositions = this.level.gamePlayerPositions;
 
@@ -229,7 +241,7 @@ class Game {
     sendState() {
         const players = [...this.players.values()]
 
-        this.updateBot(players, this.projectiles);
+        this.updateBots(players, this.projectiles);
 
         this.clients.forEach((client, socketID) => {
             if (this.players.has(socketID)) {
@@ -248,7 +260,7 @@ class Game {
      * @param {Array<Player>} players 
      * @param {Array<Bullet>} projectiles 
      */
-    updateBot(players, projectiles) {
+    updateBots(players, projectiles) {
         for (let i = 0; i < this.bots.length; i++) {
             const bot = this.bots[i];
             bot.updateOnPlayerInput(players, this.level);
@@ -257,6 +269,10 @@ class Game {
                 projectiles.push(...botProjectiles)
             }
         }
+    }
+
+    updateBotAI() {
+        this.orchestrator.updateAgents(this.bots);
     }
 
     /**

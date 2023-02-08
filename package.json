@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@tensorflow/tfjs": "^4.2.0",
+    "@tensorflow/tfjs-node-gpu": "^4.2.0",
     "express": "^4.17.2",
     "lodash": "^4.17.19",
     "socket.io": "^4.4.1",

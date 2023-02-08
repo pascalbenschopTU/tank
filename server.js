@@ -52,6 +52,10 @@ setInterval(() => {
   game.sendState()
 }, 1000 / 60);
 
+setInterval(() => {
+  game.updateBotAI()
+}, 1000 / 10);
+
 
 server.listen(Constants.PORT, function() {
   console.log('Starting server on port %s', Constants.PORT);

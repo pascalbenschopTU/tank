@@ -15,11 +15,13 @@ class SimpleEnemy extends Player {
     /**
      * Creates a simple enemy.
      * @param {Vector} position 
+     * @param {Level} level
      */
-    constructor(position) {
+    constructor(position, level) {
         super();
         this.name = Constants.BOT_NAME;
         this.position = position;
+        this.level = level;
 
         this.speed = Constants.BOT_DEFAULT_SPEED
 
@@ -48,6 +50,7 @@ class SimpleEnemy extends Player {
      * @returns 
      */
     canShoot(walls) {  
+        return false
         return this.checkPlayerReachable(walls)
             && this.checkPlayerInSight() 
             && this.checkBotCooldown() 
@@ -119,10 +122,9 @@ class SimpleEnemy extends Player {
 
     /**
      * Update the surroundings of a bot based on position
-     * @param {Level} level 
      */
-    updateSurroundings(level) {
-        this.surroundings = level.getSurroundings(this.position);
+    updateSurroundings() {
+        this.surroundings = this.level.getSurroundings(this.position);
     }
 
     /**
@@ -130,8 +132,8 @@ class SimpleEnemy extends Player {
      * @param {Array<Player>} players
      * @param {Level} level
      */
-    updateOnPlayerInput(players, level) {
-        this.updateSurroundings(level);
+    updateOnPlayerInput(players) {
+        this.updateSurroundings();
 
         if (players && players.length > 1) {
             this.closestPlayer = players[0];
@@ -193,34 +195,43 @@ class SimpleEnemy extends Player {
     }
 
     move(action) {
-        switch (this.agent.get_action(action)) {
+        switch (action) {
             case "TURNLEFT":
                 this.turnRate = -Constants.PLAYER_TURN_RATE;
-                this.velocity = Vector.zero;
+                this.velocity = Vector.zero();
+                break;
             case "TURNRIGHT":
                 this.turnRate = Constants.PLAYER_TURN_RATE;
-                this.velocity = Vector.zero;
+                this.velocity = Vector.zero();
+                break;
             case "FORWARD":
                 this.velocity = Vector.fromPolar(this.speed, this.tankAngle)
                 this.turnRate = 0;
+                break;
             case "BACKWARD":
                 this.velocity = Vector.fromPolar(-this.speed, this.tankAngle)
                 this.turnRate = 0;
+                break;
         }
+
+        return (this.getDistanceToPlayer(this.position) < 50)
     }
 
-    getDistanceToPlayer() {
-        return this.position.distance(this.closestPlayer.position);
+    getDistanceToPlayer(position) {
+        if (this.closestPlayer == null) {
+            return Infinity;
+        }
+        return position.distance(this.closestPlayer.position);
     }
 
     getStateTensor() {
-        return tf.tensor2d([[this.position, this.velocity]])
+        return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y]])
     }
 
-    getNextState(gameMap) {
+    getNextState() {
         if (this.velocity != Vector.zero) {
             var new_position = Vector.add(this.position, this.velocity);
-            return gameMap.getStateFromPosition(new_position)
+            return this.level.getStateFromPosition(new_position)
         } else {
             return 0;
         }
