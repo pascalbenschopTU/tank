@@ -3,7 +3,8 @@ const Player = require("./entities/Player");
 const Constants = require('../lib/Constants');
 const Level = require("./Level");
 const SimpleEnemy = require("./entities/SimpleEnemy");
-const Model = require('../lib/AI/QLearning')
+const Model = require('../lib/AI/NeuralNetwork')
+const QLearner = require('../lib/AI/QLearning')
 const Memory = require('../lib/AI/Memory');
 const Orchestrator = require("../lib/AI/Orchestrator");
 
@@ -21,12 +22,13 @@ class Game {
 
         this.level = new Level();
 
-        this.layers = 4;
-        this.num_states = 4;
+        this.layers = [16, 4];
+        this.num_states = 13;
         this.num_actions = 4;
-        this.batch_size = 100;
+        this.batch_size = 256;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
-        this.memory = new Memory(1000);
+        //this.model = new QLearner(this.num_states, this.num_actions);
+        this.memory = new Memory(5000);
 
         this.orchestrator = new Orchestrator(this.model, this.memory);
 
@@ -215,6 +217,8 @@ class Game {
         this.bots = this.level.gameBots.map(position => new SimpleEnemy(position, this.level));
         this.walls = this.level.gameWalls;
         this.playerPositions = this.level.gamePlayerPositions;
+
+        this.orchestrator.resetEpsilon();
 
         this.clients.forEach((client, socketID) => {
             this.addnewPlayer(Constants.PLAYER_NAME, this.clients.get(socketID));

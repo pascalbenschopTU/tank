@@ -51,9 +51,9 @@ class SimpleEnemy extends Player {
      */
     canShoot(walls) {  
         return false
-        return this.checkPlayerReachable(walls)
-            && this.checkPlayerInSight() 
-            && this.checkBotCooldown() 
+        return this.isPlayerReachable(walls)
+            && this.isPlayerInSight() 
+            && this.hasBotCooldown() 
             && this.bullets > 0;
     }
 
@@ -61,7 +61,7 @@ class SimpleEnemy extends Player {
      * Check if bot can shoot based on cooldown.
      * @returns {Boolean}
      */
-    checkBotCooldown() {
+    hasBotCooldown() {
         return this.lastUpdateTime > this.lastShotTime + this.shotCooldown 
     }
 
@@ -69,8 +69,16 @@ class SimpleEnemy extends Player {
      * Check if player in sight.
      * @returns {Boolean}
      */
-    checkPlayerInSight() {
+    isPlayerInSight() {
         return Util.inBound(this.botToPlayerAngle, this.turretAngle - 0.1, this.turretAngle + 0.1);
+    }
+
+    /**
+     * Check if bot is going towards the player.
+     * @returns {Boolean}
+     */
+    isDirectionTowardPlayer() {
+        return !this.velocity.isZero && Util.inBound(this.botToPlayerAngle, this.tankAngle - 0.3, this.tankAngle + 0.3);
     }
     
     /**
@@ -79,7 +87,7 @@ class SimpleEnemy extends Player {
      * @param {Array<Wall} walls 
      * @returns 
      */
-    checkPlayerReachable(walls) {
+    isPlayerReachable(walls) {
         var result = true;
         if (this.closestPlayer != null) {
             var D = Vector.fromPolar(1, this.turretAngle);
@@ -136,7 +144,7 @@ class SimpleEnemy extends Player {
         this.updateSurroundings();
 
         if (players && players.length > 1) {
-            this.closestPlayer = players[0];
+            this.closestPlayer = null;
             var closestDistance = Constants.CANVAS_HEIGHT * Constants.CANVAS_WIDTH;
             for (let i = 0; i < players.length; i++) {
                 if (players[i].name != this.name) {
@@ -147,11 +155,22 @@ class SimpleEnemy extends Player {
                     }
                 }
             }
-            const playerToBotVector = Vector.sub(this.closestPlayer.position, this.position);
-            this.botToPlayerAngle = Util.normalizeAngle(playerToBotVector.angle)
 
-            this.updateTurretAngle(this.botToPlayerAngle);
+            if (this.closestPlayer) {
+                this.botToPlayerAngle = this.getAngleToClosestPlayer();
+                this.updateTurretAngle(this.botToPlayerAngle);
+            }
         }
+    }
+
+    /**
+     * Get the angel to the closest player.
+     * @returns {number} angle to closest player
+     */
+    getAngleToClosestPlayer() {
+        const playerToBotVector = Vector.sub(this.closestPlayer.position, this.position);
+        
+        return Util.normalizeAngle(playerToBotVector.angle)
     }
 
     /**
@@ -214,27 +233,41 @@ class SimpleEnemy extends Player {
                 break;
         }
 
-        return (this.getDistanceToPlayer(this.position) < 50)
+        return Vector.add(this.position, (Vector.scale(this.velocity, Constants.BOT_UPDATE_RATE)))
     }
 
     getDistanceToPlayer(position) {
         if (this.closestPlayer == null) {
             return Infinity;
         }
+
         return position.distance(this.closestPlayer.position);
     }
 
     getStateTensor() {
-        return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y]])
+        //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
+        if (this.closestPlayer) {
+            //console.log([...this.position.asArray, ...this.closestPlayer.position.asArray, ...this.level.getSurroundings(this.position)])
+            //return tf.tensor2d([[this.position.x, this.position.y, this.closestPlayer.position.x, this.closestPlayer.position.y]])
+            return tf.tensor2d([[...this.position.asArray, ...this.closestPlayer.position.asArray, ...this.surroundings]])
+        }
+        else
+            return tf.tensor2d([[...this.position.asArray, 0, 0, ...this.surroundings]])
+        //return tf.tensor2d([this.level.getStateFromPosition(this.position)]);
     }
 
-    getNextState() {
-        if (this.velocity != Vector.zero) {
-            var new_position = Vector.add(this.position, this.velocity);
-            return this.level.getStateFromPosition(new_position)
-        } else {
-            return 0;
+    getNextStateTensor(new_position) {
+        //return tf.tensor2d([[new_position.x, new_position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
+        if (this.closestPlayer) {
+            return tf.tensor2d([[...new_position.asArray, ...this.closestPlayer.position.asArray, ...this.surroundings]])
         }
+        else
+            return tf.tensor2d([[...new_position.asArray, 0, 0, ...this.surroundings]])
+        //return tf.tensor2d([this.level.getStateFromPosition(new_position)]);
+    }
+
+    isNextStateInWall(new_position) {
+        return this.level.isPositionInWall(this.level.getCoordinatesFromPosition(new_position));
     }
 }
 

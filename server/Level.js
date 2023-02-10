@@ -1,12 +1,13 @@
 const Constants = require("../lib/Constants");
 const Vector = require("../lib/Vector");
 const Wall = require('./Wall');
+const Util = require('../lib/Util')
 
 const levels = [
     [
         ["*****W******"],
-        ["*****W**B***"],
         ["*****W******"],
+        ["*****W***B**"],
         ["*****W******"],
         ["P****W******"],
         ["************"],
@@ -84,6 +85,7 @@ class Level {
      * @param {Array} level 
      */
     makeLevel(level) {
+        this.removePreviousLevel();
         this.setLevelSize(new Vector(level[0][0].length, level.length))
         this.setLevelData(level);
 
@@ -111,6 +113,12 @@ class Level {
             }
             new_y += y;
         }
+    }
+
+    removePreviousLevel() {
+        this.bots = [];
+        this.walls = [];
+        this.playerPositions = [];
     }
 
     get gameBots() {
@@ -189,17 +197,17 @@ class Level {
         var y = Math.round((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y - 1));
         //console.log("x,y ",x,y," pos xy ",position.x, position.y, " canvas ", Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT, " levelsize ", this.levelSize);
         for (var i = y-1; i <= y+1; i++) {
-            var surroundingsX = []
+            //var surroundingsX = []
             for (var j = x-1; j <= x+1; j++) {
                 if (i < 0 || j < 0 || i >= this.levelSize.y || j >= this.levelSize.x) {
-                    surroundingsX.push(1);
+                    surroundings.push(1);
                 } else if (this.levelData[i][0][j] == "W") {
-                    surroundingsX.push(1);
+                    surroundings.push(1);
                 } else {
-                    surroundingsX.push(0);
+                    surroundings.push(0);
                 }
             }
-            surroundings.push(surroundingsX);
+            //surroundings.push(surroundingsX);
         }
 
         return surroundings;
@@ -208,15 +216,31 @@ class Level {
     /**
      * Get the state from a position
      * @param {Vector} position 
-     * @returns {number}
+     * @returns {Vector}
      */
-    getStateFromPosition(position) {
-        var x = Math.round((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x - 1));
-        var y = Math.round((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y - 1));
-        if (this.levelData[y][0][x] == "W")
-            return 1;
-        else
-            return 0;
+    getCoordinatesFromPosition(position) {
+        var x = Math.ceil((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x)) -1;
+        var y = Math.ceil((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y)) -1;
+
+        return new Vector(x,y);
+    }
+
+    /**
+     * Check if position inside a wall
+     * @param {Vector} coordinates 
+     * @returns 
+     */
+    isPositionInWall(coordinates) {
+        if (Util.inBound(coordinates.x, 0, this.levelSize.x - 1) && Util.inBound(coordinates.y, 0, this.levelSize.y - 1)) {
+            if (this.levelData[coordinates.y][0][coordinates.x] == "W")
+                return true;
+            else
+                return false;
+        } else {
+            // position is outside bounds
+            return true;
+        }
+        
     }
 }
 
