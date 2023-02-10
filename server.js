@@ -32,7 +32,6 @@ app.get('/', function(request, response) {
 io.on('connection', socket => {
   socket.on(Constants.SOCKET_NEW_PLAYER, (data, callback) => {
     game.addnewPlayer("kek", socket);
-    //callback();
   })
 
   socket.on(Constants.SOCKET_RESET, () => {
@@ -51,9 +50,13 @@ io.on('connection', socket => {
 setInterval(() => {
   game.update()
   game.sendState()
-}, 1000 / 60);
+}, 1000 * Constants.Player_UPDATE_RATE);
+
+setInterval(() => {
+  game.updateBotAI()
+}, 1000 * Constants.BOT_UPDATE_RATE);
 
 
 server.listen(Constants.PORT, function() {
-  console.log('Starting server on port 5000');
+  console.log('Starting server on port %s', Constants.PORT);
 });

@@ -25,8 +25,11 @@ class Player extends Entity {
     this.socketID = socketID
 
     this.lastUpdateTime = 0
+    // angle that the tank is facing
     this.tankAngle = 0
+    // angle that the turret is facing
     this.turretAngle = 0
+    // rate at which the tankangle is changing
     this.turnRate = 0
     this.speed = Constants.PLAYER_DEFAULT_SPEED
     this.shotCooldown = Constants.PLAYER_SHOT_COOLDOWN
@@ -88,8 +91,7 @@ class Player extends Entity {
     this.position.add(Vector.scale(this.velocity, deltaTime))
     this.boundToWorld()
     this.checkPlayerCollision(walls, previousPos);
-    this.tankAngle = Util.normalizeAngle(
-      this.tankAngle + this.turnRate * deltaTime)
+    this.tankAngle = Util.normalizeAngle(this.tankAngle + this.turnRate * deltaTime)
   }
 
   /**

@@ -1,12 +1,12 @@
 const Bullet = require("./entities/Bullet");
 const Player = require("./entities/Player");
-const SimpleEnemy = require("./entities/SimpleEnemy");
-
-const Constants = require("../lib/Constants");
-const Wall = require("./Wall");
-const Vector = require("../lib/Vector");
-const GameMap = require('./GameMap');
+const Constants = require('../lib/Constants');
 const Level = require("./Level");
+const SimpleEnemy = require("./entities/SimpleEnemy");
+const Model = require('../lib/AI/NeuralNetwork')
+const QLearner = require('../lib/AI/QLearning')
+const Memory = require('../lib/AI/Memory');
+const Orchestrator = require("../lib/AI/Orchestrator");
 
 
 class Game {
@@ -20,7 +20,17 @@ class Game {
         this.players = new Map();
         this.totalPlayers = 0;
 
-        this.level = Level.create();
+        this.level = new Level();
+
+        this.layers = [16, 4];
+        this.num_states = 13;
+        this.num_actions = 4;
+        this.batch_size = 256;
+        this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
+        //this.model = new QLearner(this.num_states, this.num_actions);
+        this.memory = new Memory(5000);
+
+        this.orchestrator = new Orchestrator(this.model, this.memory);
 
         this.bots = [];
         this.walls = [];
@@ -158,9 +168,9 @@ class Game {
                     e2 = entities[i]
                 }
                 if (e1 instanceof Player && e2 instanceof Bullet) {
-                    e1.deaths++
-                    e2.source.kills++
                     if (e2.source != e1) {
+                        e1.deaths++
+                        e2.source.kills++
                         e1.destroyed = true;
                         e2.destroyed = true;
                         console.log("kill");
@@ -203,10 +213,12 @@ class Game {
 
         this.syncDelay(500);
 
-        const gameMap = this.level.current();
-        this.bots = gameMap.gameBots;
-        this.walls = gameMap.gameWalls;
-        this.playerPositions = gameMap.gamePlayerPositions;
+        this.level.updateCurrentLevel();
+        this.bots = this.level.gameBots.map(position => new SimpleEnemy(position, this.level));
+        this.walls = this.level.gameWalls;
+        this.playerPositions = this.level.gamePlayerPositions;
+
+        this.orchestrator.resetEpsilon();
 
         this.clients.forEach((client, socketID) => {
             this.addnewPlayer(Constants.PLAYER_NAME, this.clients.get(socketID));
@@ -233,7 +245,7 @@ class Game {
     sendState() {
         const players = [...this.players.values()]
 
-        this.updateBot(players, this.projectiles);
+        this.updateBots(players, this.projectiles);
 
         this.clients.forEach((client, socketID) => {
             if (this.players.has(socketID)) {
@@ -252,15 +264,19 @@ class Game {
      * @param {Array<Player>} players 
      * @param {Array<Bullet>} projectiles 
      */
-    updateBot(players, projectiles) {
+    updateBots(players, projectiles) {
         for (let i = 0; i < this.bots.length; i++) {
             const bot = this.bots[i];
-            bot.updateOnPlayerInput(players, projectiles);
+            bot.updateOnPlayerInput(players, this.level);
             if (bot.canShoot(this.walls)) {
                 const botProjectiles = bot.getProjectilesFromShot()
                 projectiles.push(...botProjectiles)
             }
         }
+    }
+
+    updateBotAI() {
+        this.orchestrator.updateAgents(this.bots);
     }
 
     /**
