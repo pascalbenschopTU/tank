@@ -188,17 +188,15 @@ class SimpleEnemy extends Player {
                     this.turretAngle = negativeSteering
                 }
             } else { //this.turretAgnle >= 0
-                var posAngle = normalizedAngle
-                if (posAngle < this.turretAngle) {
-                    this.turretAngle = negativeSteering;
-                } else {
+                if (normalizedAngle < this.turretAngle) {
                     this.turretAngle = positiveSteering;
+                } else {
+                    this.turretAngle = negativeSteering;
                 }
             }   
         } else { // normalizedAngle >= 0
             if (this.turretAngle < 0) {
-                var posAngle = this.turretAngle
-                if (posAngle < normalizedAngle) {
+                if (this.turretAngle < normalizedAngle) {
                     this.turretAngle = negativeSteering;
                 } else {
                     this.turretAngle = positiveSteering;
@@ -245,17 +243,17 @@ class SimpleEnemy extends Player {
     }
 
     getStateTensor() {
-        let coordinates = this.level.getCoordinatesFromPosition(this.position).asArray
+        let coordinates = Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT)).asArray;//this.level.getCoordinatesFromPosition(this.position).asArray
         let closestPlayerCoordinates = this.closestPlayer == null ? [0,0] : this.level.getCoordinatesFromPosition(this.closestPlayer.position).asArray
         //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
-        return tf.tensor2d([[...coordinates, ...closestPlayerCoordinates, ...this.surroundings]]);
+        return tf.tensor2d([[...coordinates]])//, ...closestPlayerCoordinates, ...this.surroundings]]);
     }
 
     getNextStateTensor(new_position) {
-        let coordinates = this.level.getCoordinatesFromPosition(new_position).asArray
+        let coordinates = Vector.divide(new_position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT)).asArray;//this.level.getCoordinatesFromPosition(new_position).asArray
         let closestPlayerCoordinates = this.closestPlayer == null ? [0,0] : this.level.getCoordinatesFromPosition(this.closestPlayer.position).asArray
         //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
-        return tf.tensor2d([[...coordinates, ...closestPlayerCoordinates, ...this.surroundings]]);
+        return tf.tensor2d([[...coordinates]])//, ...closestPlayerCoordinates, ...this.surroundings]]);
     }
 
     isNextStateInWall(new_position) {

@@ -11,13 +11,13 @@
   "dependencies": {
     "@tensorflow/tfjs": "^4.2.0",
     "@tensorflow/tfjs-node-gpu": "^4.2.0",
-    "@types/jest": "^29.4.0",
     "express": "^4.17.2",
     "lodash": "^4.17.19",
     "socket.io": "^4.4.1",
     "webpack": "^5.75.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.4.0",
     "jest": "^29.4.2",
     "webpack-cli": "^4.10.0"
   }

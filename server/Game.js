@@ -7,6 +7,7 @@ const Model = require('../lib/AI/NeuralNetwork')
 const QLearner = require('../lib/AI/QLearning')
 const Memory = require('../lib/AI/Memory');
 const Orchestrator = require("../lib/AI/Orchestrator");
+const Vector = require("../lib/Vector");
 
 
 class Game {
@@ -23,7 +24,7 @@ class Game {
         this.level = new Level();
 
         this.layers = [4];
-        this.num_states = 13;
+        this.num_states = 2;//13;
         this.num_actions = 4;
         this.batch_size = 256;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
@@ -245,16 +246,21 @@ class Game {
      */
     updateModelToBestModel() {
         let reward = 0;
+        let newStartingPosition = null;
         this.orchestrators.forEach(o => {
-            if (o.getTotalReward() > reward) {
+            if (o.getAverageReward() > reward) {
                 this.model = o.getModel();
                 this.memory = o.getMemory();
-                reward = o.getTotalReward();
+                newStartingPosition = o.getAgent().position;
+                reward = o.getAverageReward();
             }
         })
         this.orchestrators.length = 0;
         console.log("Updated model with reward ", reward)
-        this.bots.forEach(bot => this.orchestrators.push(new Orchestrator(bot, this.model.copy(), this.memory.copy())))
+        this.bots.forEach(bot => {
+            this.orchestrators.push(new Orchestrator(bot, this.model.copy(), this.memory.copy()))
+            bot.position = newStartingPosition == null ? bot.position : Vector.add(newStartingPosition, new Vector(Math.random(), Math.random()));
+        })
     }
 
     /**
