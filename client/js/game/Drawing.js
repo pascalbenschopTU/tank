@@ -57,8 +57,8 @@ class Drawing {
       colour = Constants.DRAWING_BOT_COLOUR;
     }
 
-    this.drawTankSkeleton(player, colour);
-    this.drawTurret(player, colour);
+    this.drawTankSkeleton(player, colour, 23, 31);
+    this.drawTurret(player, colour, 7, 8, 15);
   }
 
   loadBulletImage() {
@@ -72,11 +72,12 @@ class Drawing {
    * Draws a bullet (tank shell) to the canvas.
    * @param {Bullet} bullet The bullet to draw to the canvas
    */
-  drawBullet(bullet) {
+  drawBullet(bullet, width, length) {
+    // Original width = 15, length = 25
     this.context.save();
     this.context.translate(bullet.position.x, bullet.position.y);
     this.context.rotate(bullet.angle + Math.PI / 2);
-    this.context.drawImage(this.loadBulletImage(), -7, 0, 15, 25);
+    this.context.drawImage(this.loadBulletImage(), -7, 0, width, length);
     this.context.rotate(-bullet.angle + Math.PI / 2);
     this.context.translate(-bullet.position.x, bullet.position.y);
 
@@ -101,9 +102,10 @@ class Drawing {
    * @param {Player} player 
    * @returns 
    */
-   getTankSkeletonPolygon(player) {
-    var tankFi = Math.atan(23 / 31);
-    var tankDg = Math.sqrt(31 * 31 + 23 * 23) / 2;
+   getTankSkeletonPolygon(player, width, length) {
+    // original width = 23, length = 31
+    var tankFi = Math.atan(width / length);
+    var tankDg = Math.sqrt(length * length + width * width) / 2;
   
     var rotMinusFi = player.tankAngle - tankFi,
         rotPlusFi = player.tankAngle + tankFi;
@@ -131,10 +133,17 @@ class Drawing {
     };
   }
   
-  drawTankSkeleton(player, colour) {
+  /**
+   * 
+   * @param {Player} player 
+   * @param {string} colour 
+   * @param {number} width 
+   * @param {number} length 
+   */
+  drawTankSkeleton(player, colour, width, length) {
       this.context.save();
   
-      var skPoly = this.getTankSkeletonPolygon(player);
+      var skPoly = this.getTankSkeletonPolygon(player, width, length);
       this.context.beginPath();
       for(var i = 0, plen = skPoly.points.length; i < plen; i++) {
           var pFunc = (i === 0) ? this.context.moveTo : this.context.lineTo;
@@ -149,17 +158,17 @@ class Drawing {
   }
   
   
-  
-  drawTurret(player, colour) {
+  drawTurret(player, colour, diameter, width, length) {
+      // original radius = 7/2, widht = 8, length = 15
       var turAngle = player.turretAngle;
-      var alpha = Math.asin(7/2 / 8),
-          beta = Math.atan(7/2 / (8 + 15)),
+      var alpha = Math.asin(diameter/2 / width),
+          beta = Math.atan(diameter/2 / (width + length)),
           startAngle = turAngle + alpha,
           endAngle = turAngle + 2 * Math.PI - alpha;
       this.context.beginPath();
-      this.context.arc(player.position.x, player.position.y, 8, startAngle, endAngle, false);
-      this.context.lineTo(player.position.x + (8 + 15) * Math.cos(turAngle - beta), player.position.y + (8 + 15) * Math.sin(turAngle - beta));
-      this.context.lineTo(player.position.x + (8 + 15) * Math.cos(turAngle + beta), player.position.y + (8 + 15) * Math.sin(turAngle + beta));
+      this.context.arc(player.position.x, player.position.y, width, startAngle, endAngle, false);
+      this.context.lineTo(player.position.x + (width + length) * Math.cos(turAngle - beta), player.position.y + (width + length) * Math.sin(turAngle - beta));
+      this.context.lineTo(player.position.x + (width + length) * Math.cos(turAngle + beta), player.position.y + (width + length) * Math.sin(turAngle + beta));
       this.context.closePath();
       
       this.context.strokeStyle = "#000";

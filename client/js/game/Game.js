@@ -6,6 +6,7 @@ const Viewport = require('./Viewport')
 const Constants = require('../../../lib/Constants')
 const Vector = require('../../../lib/Vector')
 const Util = require('../../../lib/Util')
+const Leaderboard = require('./Leaderboard')
 
 /**
  * Game class.
@@ -20,12 +21,13 @@ class Game {
    * @param {Leaderboard} leaderboard The Leaderboard object handling the
    *   leaderboard update
    */
-  constructor(socket, viewport, drawing, input) {
+  constructor(socket, viewport, drawing, input, leaderboard) {
     this.socket = socket
 
     this.viewport = viewport
     this.drawing = drawing
     this.input = input
+    this.leaderboard = leaderboard
 
     this.self = null
     this.players = []
@@ -44,16 +46,19 @@ class Game {
    *   game to
    * @return {Game}
    */
-  static create(socket, canvasElementID) {
+  static create(socket, canvasElementID, textboxElementID) {
     const canvas = document.getElementById(canvasElementID)
-    canvas.width = Constants.CANVAS_WIDTH
-    canvas.height = Constants.CANVAS_HEIGHT
+    canvas.width = Constants.CANVAS_WIDTH // = document.documentElement.clientWidth * 0.6
+    canvas.height = Constants.CANVAS_HEIGHT //= document.documentElement.clientHeight * 0.7
 
+    const textbox = document.getElementById(textboxElementID)
+    
     const viewport = Viewport.create(canvas)
     const drawing = Drawing.create(canvas, viewport)
     const input = Input.create(document, canvas)
+    const leaderboard = Leaderboard.create(textbox)
 
-    const game = new Game(socket, viewport, drawing, input)
+    const game = new Game(socket, viewport, drawing, input, leaderboard)
     game.init()
     return game
   }
@@ -77,6 +82,8 @@ class Game {
     this.self = state.self
     this.players = state.players
     this.projectiles = state.projectiles
+
+    this.leaderboard.update(this.players)
   }
 
   onReceiveGameMap(state) {
@@ -137,9 +144,7 @@ class Game {
     if (this.self) {
       this.drawing.clear()
 
-      //this.drawing.drawTiles()
-
-      this.projectiles.forEach(this.drawing.drawBullet.bind(this.drawing))
+      this.projectiles.forEach(projectile => this.drawing.drawBullet(projectile, 15, 25))
 
       this.players.forEach(tank => this.drawing.drawTank(false, tank))
       this.drawing.drawTank(true, this.self)

@@ -3,3 +3,4 @@ https://medium.com/hackernoon/how-to-build-a-multiplayer-browser-game-4a793818c2
 https://github.com/penumbragames/tankanarchy
 https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
+https://www.gamedev.net/tutorials/programming/artificial-intelligence/the-total-beginners-guide-to-game-ai-r4942/

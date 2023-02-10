@@ -1,7 +1,7 @@
-const Constants = require('../lib/Constants')
-const Entity = require('../lib/Entity')
-const Vector = require('../lib/Vector')
-const Util = require('../lib/Util')
+const Constants = require('../../lib/Constants')
+const Entity = require('../../lib/Entity')
+const Vector = require('../../lib/Vector')
+const Util = require('../../lib/Util')
 
 /**
  * Bullet class.
@@ -43,6 +43,14 @@ class Bullet extends Entity {
       angle,
       player
     );
+  }
+
+  /**
+   * Return copy.
+   * @returns {Bullet}
+   */
+  copy() {
+    return new Bullet(this.position, this.velocity, this.angle, this.source);
   }
 
   /**

@@ -1,0 +1,29 @@
+canvas {
+    float: left;
+    color: brown;
+    border: 5px solid black;
+}
+
+.wrapper {
+    float: right;
+    border: 1px solid;
+    width: 25%;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    color: black;
+    background-color: lightblue;
+    border: 1px solid black;
+    cursor: pointer;
+    clear: left;
+    padding: 5px;
+}
+
+li:hover {
+    background-color: purple;
+    color: white;
+}

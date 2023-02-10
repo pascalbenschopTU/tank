@@ -28,18 +28,20 @@ class Wall {
     }
 
     /**
+     * Make a copy.
+     * @returns {Wall}
+     */
+    copy() {
+        return new Wall(this.position, this.width, this.height);
+    }
+
+    /**
      * Override collided method.
      * @param {Entity} other 
      */
     collided(other) {
         return Util.inBound(other.position.x, this.minX, this.maxX) &&
             Util.inBound(other.position.y, this.minY, this.maxY);
-    }
-
-
-    collidedAt(position) {
-        return Util.inBound(position.x, this.minX, this.maxX) &&
-            Util.inBound(position.y, this.minY, this.maxY);
     }
 }
 
