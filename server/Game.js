@@ -22,15 +22,16 @@ class Game {
 
         this.level = new Level();
 
-        this.layers = [16, 4];
+        this.layers = [4];
         this.num_states = 13;
         this.num_actions = 4;
         this.batch_size = 256;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
         //this.model = new QLearner(this.num_states, this.num_actions);
-        this.memory = new Memory(5000);
+        this.memory = new Memory(10000);
 
-        this.orchestrator = new Orchestrator(this.model, this.memory);
+        this.orchestrators = new Array()
+        this.steps = 0;
 
         this.bots = [];
         this.walls = [];
@@ -218,7 +219,7 @@ class Game {
         this.walls = this.level.gameWalls;
         this.playerPositions = this.level.gamePlayerPositions;
 
-        this.orchestrator.resetEpsilon();
+        this.updateModelToBestModel();
 
         this.clients.forEach((client, socketID) => {
             this.addnewPlayer(Constants.PLAYER_NAME, this.clients.get(socketID));
@@ -237,6 +238,23 @@ class Game {
         this.bots = [];
         this.walls = [];
         this.playerPositions = [];
+    }
+
+    /**
+     * Update the model used for the agents to the previous best one.
+     */
+    updateModelToBestModel() {
+        let reward = 0;
+        this.orchestrators.forEach(o => {
+            if (o.getTotalReward() > reward) {
+                this.model = o.getModel();
+                this.memory = o.getMemory();
+                reward = o.getTotalReward();
+            }
+        })
+        this.orchestrators.length = 0;
+        console.log("Updated model with reward ", reward)
+        this.bots.forEach(bot => this.orchestrators.push(new Orchestrator(bot, this.model.copy(), this.memory.copy())))
     }
 
     /**
@@ -275,8 +293,15 @@ class Game {
         }
     }
 
+    /**
+     * Gets called from server to periodically update the bots
+     */
     updateBotAI() {
-        this.orchestrator.updateAgents(this.bots);
+        this.orchestrators.forEach(o => o.updateAgent());
+        this.steps += 1;
+        if (this.steps % 300 == 0){
+            this.updateModelToBestModel();
+        }
     }
 
     /**

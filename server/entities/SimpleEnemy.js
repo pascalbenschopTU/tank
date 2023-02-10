@@ -78,7 +78,7 @@ class SimpleEnemy extends Player {
      * @returns {Boolean}
      */
     isDirectionTowardPlayer() {
-        return !this.velocity.isZero && Util.inBound(this.botToPlayerAngle, this.tankAngle - 0.3, this.tankAngle + 0.3);
+        return !this.velocity.isZero && Util.inBound(this.botToPlayerAngle, this.tankAngle - 0.7, this.tankAngle + 0.7);
     }
     
     /**
@@ -245,25 +245,17 @@ class SimpleEnemy extends Player {
     }
 
     getStateTensor() {
+        let coordinates = this.level.getCoordinatesFromPosition(this.position).asArray
+        let closestPlayerCoordinates = this.closestPlayer == null ? [0,0] : this.level.getCoordinatesFromPosition(this.closestPlayer.position).asArray
         //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
-        if (this.closestPlayer) {
-            //console.log([...this.position.asArray, ...this.closestPlayer.position.asArray, ...this.level.getSurroundings(this.position)])
-            //return tf.tensor2d([[this.position.x, this.position.y, this.closestPlayer.position.x, this.closestPlayer.position.y]])
-            return tf.tensor2d([[...this.position.asArray, ...this.closestPlayer.position.asArray, ...this.surroundings]])
-        }
-        else
-            return tf.tensor2d([[...this.position.asArray, 0, 0, ...this.surroundings]])
-        //return tf.tensor2d([this.level.getStateFromPosition(this.position)]);
+        return tf.tensor2d([[...coordinates, ...closestPlayerCoordinates, ...this.surroundings]]);
     }
 
     getNextStateTensor(new_position) {
-        //return tf.tensor2d([[new_position.x, new_position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
-        if (this.closestPlayer) {
-            return tf.tensor2d([[...new_position.asArray, ...this.closestPlayer.position.asArray, ...this.surroundings]])
-        }
-        else
-            return tf.tensor2d([[...new_position.asArray, 0, 0, ...this.surroundings]])
-        //return tf.tensor2d([this.level.getStateFromPosition(new_position)]);
+        let coordinates = this.level.getCoordinatesFromPosition(new_position).asArray
+        let closestPlayerCoordinates = this.closestPlayer == null ? [0,0] : this.level.getCoordinatesFromPosition(this.closestPlayer.position).asArray
+        //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
+        return tf.tensor2d([[...coordinates, ...closestPlayerCoordinates, ...this.surroundings]]);
     }
 
     isNextStateInWall(new_position) {
