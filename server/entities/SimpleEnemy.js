@@ -242,18 +242,23 @@ class SimpleEnemy extends Player {
         return position.distance(this.closestPlayer.position);
     }
 
+    /**
+     * Get the state tensor of an agent
+     * return the map with walls, playerposition and currentposition
+     * @returns {tf.Tensor2D}
+     */
     getStateTensor() {
-        let coordinates = Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT)).asArray;//this.level.getCoordinatesFromPosition(this.position).asArray
-        let closestPlayerCoordinates = this.closestPlayer == null ? [0,0] : this.level.getCoordinatesFromPosition(this.closestPlayer.position).asArray
-        //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
-        return tf.tensor2d([[...coordinates]])//, ...closestPlayerCoordinates, ...this.surroundings]]);
+        let agentCoordinates = this.level.getCoordinatesFromPosition(this.position);
+        let closestPlayerCoordinates = this.closestPlayer == null ? Vector.zero() : this.level.getCoordinatesFromPosition(this.closestPlayer.position)
+        
+        return tf.tensor2d([[...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)]]);
     }
 
     getNextStateTensor(new_position) {
-        let coordinates = Vector.divide(new_position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT)).asArray;//this.level.getCoordinatesFromPosition(new_position).asArray
-        let closestPlayerCoordinates = this.closestPlayer == null ? [0,0] : this.level.getCoordinatesFromPosition(this.closestPlayer.position).asArray
-        //return tf.tensor2d([[this.position.x, this.position.y, this.velocity.x, this.velocity.y, this.tankAngle]])
-        return tf.tensor2d([[...coordinates]])//, ...closestPlayerCoordinates, ...this.surroundings]]);
+        let agentCoordinates = this.level.getCoordinatesFromPosition(new_position);
+        let closestPlayerCoordinates = this.closestPlayer == null ? Vector.zero() : this.level.getCoordinatesFromPosition(this.closestPlayer.position)
+        
+        return tf.tensor2d([[...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)]]);
     }
 
     isNextStateInWall(new_position) {

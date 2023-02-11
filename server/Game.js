@@ -23,13 +23,13 @@ class Game {
 
         this.level = new Level();
 
-        this.layers = [4];
-        this.num_states = 2;//13;
+        this.layers = [16, 16];
+        this.num_states = 6;
         this.num_actions = 4;
         this.batch_size = 256;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
         //this.model = new QLearner(this.num_states, this.num_actions);
-        this.memory = new Memory(10000);
+        this.memory = new Memory(1000);
 
         this.orchestrators = new Array()
         this.steps = 0;
@@ -245,16 +245,22 @@ class Game {
      * Update the model used for the agents to the previous best one.
      */
     updateModelToBestModel() {
+        let network = null;
         let reward = 0;
         let newStartingPosition = null;
         this.orchestrators.forEach(o => {
             if (o.getAverageReward() > reward) {
-                this.model = o.getModel();
+                network = o.getModel().getNetwork();
                 this.memory = o.getMemory();
-                newStartingPosition = o.getAgent().position;
+                newStartingPosition = new Vector(Constants.CANVAS_WIDTH - 50, Constants.CANVAS_HEIGHT - 50) // o.getAgent().position;
                 reward = o.getAverageReward();
             }
         })
+
+        this.model = new Model(this.layers, this.level.levelSize.product, this.num_actions, this.batch_size);
+        if (network != null) 
+            this.model.setNetwork(network);
+
         this.orchestrators.length = 0;
         console.log("Updated model with reward ", reward)
         this.bots.forEach(bot => {

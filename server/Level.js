@@ -204,9 +204,7 @@ class Level {
         // Get index of position of agent in level
         var x = Math.round((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x - 1));
         var y = Math.round((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y - 1));
-        //console.log("x,y ",x,y," pos xy ",position.x, position.y, " canvas ", Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT, " levelsize ", this.levelSize);
         for (var i = y-1; i <= y+1; i++) {
-            //var surroundingsX = []
             for (var j = x-1; j <= x+1; j++) {
                 if (i < 0 || j < 0 || i >= this.levelSize.y || j >= this.levelSize.x) {
                     surroundings.push(1);
@@ -215,11 +213,48 @@ class Level {
                 } else {
                     surroundings.push(0);
                 }
+
+                index += 1;
             }
-            //surroundings.push(surroundingsX);
         }
 
         return surroundings;
+    }
+
+    /**
+     * Get a 1d map of the level with player position and bot position.
+     * @param {Vector} playerPosition 
+     * @param {Vector} botPosition 
+     * @returns {Array} map
+     */
+    getCurrentMap(playerPosition, botPosition) {
+        let map = Array(this.levelSize.x * this.levelSize.y).fill(0);
+        if (this.isPositionInsideLevel(playerPosition) && this.isPositionInsideLevel(botPosition)) {
+            for (var y_index = 0; y_index < this.levelSize.y; y_index++) {
+                if (this.levelData[y_index].length > 0) {
+                    var currentRow = this.levelData[y_index][0];
+                    for (var x_index = 0; x_index < currentRow.length; x_index++) {
+                        var index = y_index * this.levelSize.y + x_index
+                        map[index] = 0;
+                        if (playerPosition.y == y_index && playerPosition.x == x_index) {
+                            map[index] = 1;
+                        }
+                        if (botPosition.y == y_index && botPosition.x == x_index) {
+                            map[index] = 2;
+                        }
+                        if (currentRow[x_index] == "W") {
+                            map[index] = 3;
+                        }
+                    }
+                }
+            }
+        }
+
+        return map;
+    }
+
+    isPositionInsideLevel(position) {
+        return (position.x >= 0 && position.y >= 0) && (position.x < this.levelSize.x && position.y < this.levelSize.y);
     }
 
     /**
@@ -230,6 +265,18 @@ class Level {
     getCoordinatesFromPosition(position) {
         var x = Math.ceil((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x)) -1;
         var y = Math.ceil((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y)) -1;
+
+        return new Vector(x,y);
+    }
+
+    /**
+     * Get the coordinates from [0, 1]
+     * @param {Vector} position 
+     * @returns {Vector} normalized position
+     */
+    getCoordinatesNormalized(position) {
+        var x = position.x / Constants.CANVAS_WIDTH;
+        var y = position.y / Constants.CANVAS_HEIGHT;
 
         return new Vector(x,y);
     }
