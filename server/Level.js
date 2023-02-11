@@ -213,8 +213,6 @@ class Level {
                 } else {
                     surroundings.push(0);
                 }
-
-                index += 1;
             }
         }
 
