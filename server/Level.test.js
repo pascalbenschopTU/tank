@@ -27,8 +27,8 @@ test("getSurroundings returns correct int for border", () => {
 
     var position = new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT);
     
-    var expectedValue = (1<<2) + (1<<5) + (1<<6) + (1<<7) + (1<<8);
-    expect(l.getSurroundings(position)).toBe(expectedValue)
+    var expectedValue = [0, 0, 1, 0, 0, 1, 1, 1, 1];
+    expect(l.getSurroundings(position)).toEqual(expectedValue)
 })
 
 test("getSurroundings returns correct int for walls and border", () => {
@@ -37,8 +37,8 @@ test("getSurroundings returns correct int for walls and border", () => {
 
     var position = new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT);
     
-    var expectedValue = (1<<0) + (1<<1) + (1<<2) + (1<<3) + (1<<5) + (1<<6) + (1<<7) + (1<<8);
-    expect(l.getSurroundings(position)).toBe(expectedValue)
+    var expectedValue = [1, 1, 1, 1, 0, 1, 1, 1, 1];
+    expect(l.getSurroundings(position)).toEqual(expectedValue)
 })
 
 test("getCurrentMap returns correct map for empty map", () => {
