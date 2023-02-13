@@ -24,12 +24,12 @@ class Game {
         this.level = new Level();
 
         this.layers = [16, 16];
-        this.num_states = 6;
-        this.num_actions = 4;
+        this.num_states = 4;
+        this.num_actions = 7;
         this.batch_size = 256;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
         //this.model = new QLearner(this.num_states, this.num_actions);
-        this.memory = new Memory(1000);
+        this.memory = new Memory(5000);
 
         this.orchestrators = new Array()
         this.steps = 0;
@@ -190,9 +190,14 @@ class Game {
             }
         }
 
-        /**
-         * Filters out destroyed projectiles and powerups.
-         */
+        this.projectiles = this.projectiles.filter(projectile => !projectile.destroyed)
+    }
+
+    /**
+    * Filters out destroyed projectiles and powerups.       
+    */
+    removePlayer() {
+        
         this.projectiles = this.projectiles.filter(projectile => !projectile.destroyed)
         var keyToRemove = -100;
         for (let [key, player] of this.players) {
@@ -297,7 +302,7 @@ class Game {
     updateBots(players, projectiles) {
         for (let i = 0; i < this.bots.length; i++) {
             const bot = this.bots[i];
-            bot.updateOnPlayerInput(players, this.level);
+            bot.updateOnPlayerInput(players);
             if (bot.canShoot(this.walls)) {
                 const botProjectiles = bot.getProjectilesFromShot()
                 projectiles.push(...botProjectiles)

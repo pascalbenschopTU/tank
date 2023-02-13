@@ -34,6 +34,8 @@ class SimpleEnemy extends Player {
         this.botToPlayerAngle = 0;
 
         this.bullets = 5;
+
+        this.isFiring = false;
     } 
 
     /**
@@ -50,7 +52,9 @@ class SimpleEnemy extends Player {
      * @returns 
      */
     canShoot(walls) {  
-        return false
+        return this.isFiring
+            && this.hasBotCooldown() 
+            && this.bullets > 0;;
         return this.isPlayerReachable(walls)
             && this.isPlayerInSight() 
             && this.hasBotCooldown() 
@@ -129,20 +133,11 @@ class SimpleEnemy extends Player {
     }
 
     /**
-     * Update the surroundings of a bot based on position
-     */
-    updateSurroundings() {
-        this.surroundings = this.level.getSurroundings(this.position);
-    }
-
-    /**
      * Update input on players.
      * @param {Array<Player>} players
      * @param {Level} level
      */
     updateOnPlayerInput(players) {
-        this.updateSurroundings();
-
         if (players && players.length > 1) {
             this.closestPlayer = null;
             var closestDistance = Constants.CANVAS_HEIGHT * Constants.CANVAS_WIDTH;
@@ -156,10 +151,10 @@ class SimpleEnemy extends Player {
                 }
             }
 
-            if (this.closestPlayer) {
-                this.botToPlayerAngle = this.getAngleToClosestPlayer();
-                this.updateTurretAngle(this.botToPlayerAngle);
-            }
+            // if (this.closestPlayer) {
+            //     this.botToPlayerAngle = this.getAngleToClosestPlayer();
+            //     this.updateTurretAngle(this.botToPlayerAngle);
+            // }
         }
     }
 
@@ -212,6 +207,8 @@ class SimpleEnemy extends Player {
     }
 
     move(action) {
+        this.isFiring = false;
+        //this.turretAngle = 0;
         switch (action) {
             case "TURNLEFT":
                 this.turnRate = -Constants.PLAYER_TURN_RATE;
@@ -228,6 +225,15 @@ class SimpleEnemy extends Player {
             case "BACKWARD":
                 this.velocity = Vector.fromPolar(-this.speed, this.tankAngle)
                 this.turnRate = 0;
+                break;
+            case "TURRETLEFT":
+                this.turretAngle = Util.normalizeAngle(this.turretAngle - 0.02);
+                break;
+            case "TURRETRIGHT":
+                this.turretAngle = Util.normalizeAngle(this.turretAngle + 0.02);
+                break;
+            case "SHOOT":
+                this.isFiring = true;
                 break;
         }
 
