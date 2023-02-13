@@ -1,6 +1,6 @@
-const Vector = require("../../lib/Vector")
-const Level = require("../Level")
-const SimpleEnemy = require("./SimpleEnemy")
+const Vector = require("../lib/Vector")
+const Level = require("../server/Level")
+const SimpleEnemy = require("../server/entities/SimpleEnemy")
 
 test("Update turret angle 1", () => {
     let l = new Level();

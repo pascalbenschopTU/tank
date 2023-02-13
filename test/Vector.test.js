@@ -1,4 +1,4 @@
-const Vector = require("./Vector")
+const Vector = require("../lib/Vector")
 
 test("Correct Distance", () => {
     let a = new Vector(2,0)

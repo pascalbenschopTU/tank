@@ -4,10 +4,10 @@ const Constants = require('../lib/Constants');
 const Level = require("./Level");
 const SimpleEnemy = require("./entities/SimpleEnemy");
 const Model = require('../lib/AI/NeuralNetwork')
-const QLearner = require('../lib/AI/QLearning')
 const Memory = require('../lib/AI/Memory');
 const Orchestrator = require("../lib/AI/Orchestrator");
-const Vector = require("../lib/Vector");
+
+const tf = require('@tensorflow/tfjs-node-gpu');
 
 
 class Game {
@@ -24,12 +24,12 @@ class Game {
         this.level = new Level();
 
         this.layers = [16, 16];
-        this.num_states = 6;
+        this.num_states = 7;
         this.num_actions = 4;
         this.batch_size = 256;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
         //this.model = new QLearner(this.num_states, this.num_actions);
-        this.memory = new Memory(1000);
+        this.memory = new Memory(10000);
 
         this.orchestrators = new Array()
         this.steps = 0;
@@ -244,28 +244,25 @@ class Game {
     /**
      * Update the model used for the agents to the previous best one.
      */
-    updateModelToBestModel() {
+    async updateModelToBestModel() {
         let network = null;
         let reward = 0;
-        let newStartingPosition = null;
         this.orchestrators.forEach(o => {
-            if (o.getAverageReward() > reward) {
-                network = o.getModel().getNetwork();
+            if (o.getTotalReward() > reward) {
                 this.memory = o.getMemory();
-                newStartingPosition = new Vector(Constants.CANVAS_WIDTH - 50, Constants.CANVAS_HEIGHT - 50) // o.getAgent().position;
-                reward = o.getAverageReward();
+                network = o.getModel().getNetwork();
+                reward = o.getTotalReward();
             }
         })
 
-        this.model = new Model(this.layers, this.level.levelSize.product, this.num_actions, this.batch_size);
-        if (network != null) 
-            this.model.setNetwork(network);
+        if (network != null) {
+            await network.save('file://./best_model')
+            console.log("Saved model, updated new models with weights, updated model with reward ", reward)
+        }
 
         this.orchestrators.length = 0;
-        console.log("Updated model with reward ", reward)
         this.bots.forEach(bot => {
-            this.orchestrators.push(new Orchestrator(bot, this.model.copy(), this.memory.copy()))
-            bot.position = newStartingPosition == null ? bot.position : Vector.add(newStartingPosition, new Vector(Math.random(), Math.random()));
+            this.orchestrators.push(new Orchestrator(bot, this.model.copy(network), this.memory))
         })
     }
 
@@ -309,9 +306,12 @@ class Game {
      * Gets called from server to periodically update the bots
      */
     updateBotAI() {
-        this.orchestrators.forEach(o => o.updateAgent());
-        this.steps += 1;
-        if (this.steps % 300 == 0){
+        this.finished = false;
+        this.orchestrators.forEach(o => {
+            this.finished |= o.updateAgent()
+        });
+
+        if (this.finished){
             this.updateModelToBestModel();
         }
     }

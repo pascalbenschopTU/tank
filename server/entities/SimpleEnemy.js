@@ -22,17 +22,11 @@ class SimpleEnemy extends Player {
         this.name = Constants.BOT_NAME;
         this.position = position;
         this.level = level;
-
         this.speed = Constants.BOT_DEFAULT_SPEED
-
         this.shotCooldown = Constants.BOT_SHOT_COOLDOWN
-
         this.surroundings = [];
-
         this.closestPlayer = null;
-
         this.botToPlayerAngle = 0;
-
         this.bullets = 5;
     } 
 
@@ -78,7 +72,7 @@ class SimpleEnemy extends Player {
      * @returns {Boolean}
      */
     isDirectionTowardPlayer() {
-        return !this.velocity.isZero && Util.inBound(this.botToPlayerAngle, this.tankAngle - 0.7, this.tankAngle + 0.7);
+        return Util.inBound(this.botToPlayerAngle, this.tankAngle - 0.5, this.tankAngle + 0.5);
     }
     
     /**
@@ -231,15 +225,15 @@ class SimpleEnemy extends Player {
                 break;
         }
 
-        return Vector.add(this.position, (Vector.scale(this.velocity, Constants.BOT_UPDATE_RATE)))
+        return this.getDistanceToPlayer() < 50;
     }
 
-    getDistanceToPlayer(position) {
+    getDistanceToPlayer() {
         if (this.closestPlayer == null) {
             return Infinity;
         }
 
-        return position.distance(this.closestPlayer.position);
+        return this.position.distance(this.closestPlayer.position);
     }
 
     /**
@@ -254,11 +248,13 @@ class SimpleEnemy extends Player {
         return tf.tensor2d([[...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)]]);
     }
 
-    getNextStateTensor(new_position) {
-        let agentCoordinates = this.level.getCoordinatesFromPosition(new_position);
-        let closestPlayerCoordinates = this.closestPlayer == null ? Vector.zero() : this.level.getCoordinatesFromPosition(this.closestPlayer.position)
-        
-        return tf.tensor2d([[...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)]]);
+    getObservationTensor() {
+        let agentPosition = Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
+        let closestPlayerPosition = this.closestPlayer == null ? Vector.zero() : Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
+        let agentAngle = this.tankAngle / Math.PI;
+        let velocity = this.velocity;
+
+        return tf.tensor2d([[...agentPosition.asArray, ...closestPlayerPosition.asArray, agentAngle, ...velocity.asArray]])
     }
 
     isNextStateInWall(new_position) {

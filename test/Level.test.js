@@ -1,6 +1,6 @@
 const Constants = require("../lib/Constants");
 const Vector = require("../lib/Vector");
-const Level = require("./Level")
+const Level = require("../server/Level")
 
 const testLevels = [
     [
