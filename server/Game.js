@@ -23,10 +23,10 @@ class Game {
 
         this.level = new Level();
 
-        this.layers = [16, 16];
+        this.layers = [128, 128];
         this.num_states = 7;
         this.num_actions = 4;
-        this.batch_size = 256;
+        this.batch_size = 128;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
         //this.model = new QLearner(this.num_states, this.num_actions);
         this.memory = new Memory(10000);
@@ -90,6 +90,8 @@ class Game {
         ));
 
         this.sendMap();
+
+        this.updateBotAI();
 
         this.totalPlayers++;
     }
@@ -305,13 +307,18 @@ class Game {
     /**
      * Gets called from server to periodically update the bots
      */
-    updateBotAI() {
-        this.finished = false;
-        this.orchestrators.forEach(o => {
-            this.finished |= o.updateAgent()
-        });
+    async updateBotAI() {
+        let finished = false;
+        while (!finished) {
+            this.orchestrators.forEach(async o => {
+                finished |= await o.updateAgent();
+            });
+            await new Promise(res => setTimeout(res, 500));
+        }
+        
+        
 
-        if (this.finished){
+        if (finished){
             this.updateModelToBestModel();
         }
     }
