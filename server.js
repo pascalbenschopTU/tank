@@ -52,9 +52,9 @@ setInterval(() => {
   game.sendState()
 }, 1000 * Constants.Player_UPDATE_RATE);
 
-setInterval(() => {
-  game.updateBotAI()
-}, 1000 * Constants.BOT_UPDATE_RATE);
+// setInterval(() => {
+//   game.updateBotAI()
+// }, 1000 * Constants.BOT_UPDATE_RATE);
 
 
 server.listen(Constants.PORT, function() {
