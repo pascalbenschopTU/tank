@@ -23,7 +23,7 @@ app.use('/dist', express.static(path.join(__dirname, '/dist')));
 
 // Routing
 app.get('/', function(request, response) {
-  response.sendFile(path.join(__dirname, 'view/index.html'));
+  response.sendFile(path.join(__dirname + '/client/view/index.html'));
 });
 
 

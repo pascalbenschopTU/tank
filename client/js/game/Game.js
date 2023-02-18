@@ -1,12 +1,12 @@
 const Drawing = require('./Drawing')
 const Input = require('./Input')
-//const Leaderboard = require('./Leaderboard')
+const Console = require("./Console")
 const Viewport = require('./Viewport')
 
 const Constants = require('../../../lib/Constants')
 const Vector = require('../../../lib/Vector')
 const Util = require('../../../lib/Util')
-const Leaderboard = require('./Leaderboard')
+const TextBox = require('./TextBox')
 
 /**
  * Game class.
@@ -18,16 +18,17 @@ class Game {
    * @param {Viewport} viewport The Viewport object for coordinate translation
    * @param {Drawing} drawing The Drawing object for canvas rendering
    * @param {Input} input The Input object for tracking user input
-   * @param {Leaderboard} leaderboard The Leaderboard object handling the
+   * @param {Leaderboard} textbox The Leaderboard object handling the
    *   leaderboard update
    */
-  constructor(socket, viewport, drawing, input, leaderboard) {
+  constructor(socket, viewport, drawing, input, textbox, console) {
     this.socket = socket
 
     this.viewport = viewport
     this.drawing = drawing
     this.input = input
-    this.leaderboard = leaderboard
+    this.textbox = textbox
+    this.console = console
 
     this.self = null
     this.players = []
@@ -46,19 +47,18 @@ class Game {
    *   game to
    * @return {Game}
    */
-  static create(socket, canvasElementID, textboxElementID) {
+  static create(socket, canvasElementID, textboxElementID, consoleElementID) {
     const canvas = document.getElementById(canvasElementID)
     canvas.width = Constants.CANVAS_WIDTH // = document.documentElement.clientWidth * 0.6
     canvas.height = Constants.CANVAS_HEIGHT //= document.documentElement.clientHeight * 0.7
-
-    const textbox = document.getElementById(textboxElementID)
     
     const viewport = Viewport.create(canvas)
     const drawing = Drawing.create(canvas, viewport)
     const input = Input.create(document, canvas)
-    const leaderboard = Leaderboard.create(textbox)
+    const textbox = TextBox.create(document.getElementById(textboxElementID))
+    const console = Console.create(document.getElementById(consoleElementID), textbox)
 
-    const game = new Game(socket, viewport, drawing, input, leaderboard)
+    const game = new Game(socket, viewport, drawing, input, textbox, console)
     game.init()
     return game
   }
@@ -83,7 +83,7 @@ class Game {
     this.players = state.players
     this.projectiles = state.projectiles
 
-    this.leaderboard.update(this.players)
+    //this.textbox.update(this.players)
   }
 
   onReceiveGameMap(state) {

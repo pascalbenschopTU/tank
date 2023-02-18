@@ -26,7 +26,7 @@
     static create(keyElement, mouseMoveElement) {
       const input = new Input()
 
-      input.applyEventHandlers(keyElement, keyElement, mouseMoveElement)
+      input.applyEventHandlers(keyElement, mouseMoveElement, mouseMoveElement)
       return input
     }
   
