@@ -5,15 +5,6 @@ const Level = require("../../../server/Level");
 const SimpleEnemy = require("../../../server/entities/SimpleEnemy");
 const Vector = require("../../../lib/Vector");
 const Player = require("../../../server/entities/Player");
-const { exp } = require("@tensorflow/tfjs");
-
-const testLevels = [
-    [
-        ["..."],
-        ["..."],
-        ["..."],
-    ]
-]
 
 function getModel() {
     var layers = [128, 128];
