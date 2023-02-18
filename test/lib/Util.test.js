@@ -1,4 +1,4 @@
-const Util = require('../lib/Util')
+const Util = require('../../lib/Util')
 
 test('Value above 2 PI should be normalized', () => {
     expect(Util.normalizeAngle(2*Math.PI + 0.1)).toBeCloseTo(0.1);
