@@ -3,7 +3,7 @@ const TextBox = require("./TextBox");
 
 const commands = [
     "Debug_change_speed",
-    "Debug_placeholder"
+    "toggleLearning"
 ]
 
 const white = "#FFFFFF"
@@ -24,27 +24,46 @@ class Console {
      * @param {HTMLElement} console 
      * @param {TextBox} textbox 
      */
-    constructor(console, textbox) {
+    constructor(console, textbox, socket) {
         this.console = console;
         this.textbox = textbox;
+        this.socket = socket;
 
         this.writeInputToConsole()
         this.autocomplete(console, commands)
     }
 
-    static create(console, textbox) {
-        return new Console(console, textbox);
+    /**
+     * Create a new console
+     * @param {HTMLElement} console 
+     * @param {TextBox} textbox 
+     * @returns console
+     */
+    static create(console, textbox, socket) {
+        return new Console(console, textbox, socket);
     }
 
+    /**
+     * Write input to the console when pressing enter
+     */
     writeInputToConsole() {
         this.console.addEventListener("keyup", (event) => {
-            if (event.key == "Enter")
-                this.textbox.addListItem(this.processInput(event.target.value), console_id, white)
+            if (event.key == "Enter") {
+                this.textbox.addListItem(this.processInput(event.target.value), console_id, white);
+                this.console.value = "";
+            }
         })
     }
 
+    /**
+     * TODO: clean up
+     * Process input before writing it to console
+     * @param {string} input 
+     * @returns input
+     */
     processInput(input) {
         let inputArr = input.split(" ")
+        let data = {}
         if (inputArr.length > 1) {
             if (inputArr[0] == commands[0]) {
                 let number = parseInt(inputArr[1])
@@ -55,11 +74,38 @@ class Console {
                 }
             }
         }
+        if (inputArr.length == 1) {
+            if (inputArr[0] == commands[1]) {
+                data.toggleTraining = true;
+            }
+        }
         
+        this.sendDebugInfo(data);
 
         return input
     }
 
+    /**
+     * TODO: Send messages to server
+     * @param {Object} messages 
+     */
+    sendMessages(messages) {
+        // this.socket.emit()
+    }
+
+    /**
+     * Send commands to server
+     * @param {Object} info 
+     */
+    sendDebugInfo(info) {
+        this.socket.emit(Constants.SOCKET_DEBUG_INFO, info);
+    }
+
+    /**
+     * Create autocomplete items based on input
+     * @param {HTMLElement} console 
+     * @param {Array} autoCompleteInput 
+     */
     autocomplete(console, autoCompleteInput) {
         /*the autocomplete function takes two arguments,
         the text field element and an array of possible autocompleted values:*/

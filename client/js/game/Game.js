@@ -56,7 +56,7 @@ class Game {
     const drawing = Drawing.create(canvas, viewport)
     const input = Input.create(document, canvas)
     const textbox = TextBox.create(document.getElementById(textboxElementID))
-    const console = Console.create(document.getElementById(consoleElementID), textbox)
+    const console = Console.create(document.getElementById(consoleElementID), textbox, socket)
 
     const game = new Game(socket, viewport, drawing, input, textbox, console)
     game.init()

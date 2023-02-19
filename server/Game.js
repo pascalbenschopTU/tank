@@ -9,7 +9,6 @@ const Orchestrator = require("../lib/AI/Orchestrator");
 
 const tf = require('@tensorflow/tfjs-node-gpu');
 
-
 class Game {
 
     /**
@@ -23,6 +22,7 @@ class Game {
 
         this.level = new Level();
 
+        this.learning = false;
         this.layers = [128, 128];
         this.num_states = 7;
         this.num_actions = 4;
@@ -42,8 +42,6 @@ class Game {
         this.lastUpdateTime = 0;
         this.deltaTime = 0;
     }
-
-
 
     /**
      * Creates a game object.
@@ -305,19 +303,27 @@ class Game {
     }
 
     /**
+     * Process debug info from socket
+     * @param {Object} data 
+     */
+    processDebugInfo(data) {
+        if (data.toggleTraining) { 
+            this.learning = !this.learning;
+        }
+    }
+
+    /**
      * Gets called from server to periodically update the bots
      */
     async updateBotAI() {
         let finished = false;
         while (!finished) {
             this.orchestrators.forEach(async o => {
-                finished |= await o.updateAgent();
+                finished |= await o.updateAgent(this.learning);
             });
             await new Promise(res => setTimeout(res, 500));
         }
         
-        
-
         if (finished){
             this.updateModelToBestModel();
         }
