@@ -20,10 +20,11 @@ class TextBox {
    * Add a text item to the textbox
    * @param {string} text 
    */
-  addListItem(text, id) {
+  addListItem(text, id, color) {
     const listitem = document.createElement('li');
     listitem.appendChild(document.createTextNode(text))
     listitem.id = id
+    listitem.style.color = color;
 
     this.container.appendChild(listitem);
   }

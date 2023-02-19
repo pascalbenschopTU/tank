@@ -216,11 +216,11 @@ class SimpleEnemy extends Player {
                 this.velocity = Vector.zero();
                 break;
             case "FORWARD":
-                this.velocity = Vector.fromPolar(this.speed, this.tankAngle)
+                this.velocity = Vector.fromPolar(Constants.BOT_DEFAULT_SPEED, this.tankAngle)
                 this.turnRate = 0;
                 break;
             case "BACKWARD":
-                this.velocity = Vector.fromPolar(-this.speed, this.tankAngle)
+                this.velocity = Vector.fromPolar(-Constants.BOT_DEFAULT_SPEED, this.tankAngle)
                 this.turnRate = 0;
                 break;
         }
