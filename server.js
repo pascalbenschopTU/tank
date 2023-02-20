@@ -30,8 +30,8 @@ app.get('/', function(request, response) {
 
 
 io.on('connection', socket => {
-  socket.on(Constants.SOCKET_NEW_PLAYER, () => {
-    game.addnewPlayer("kek", socket);
+  socket.on(Constants.SOCKET_NEW_PLAYER, (data) => {
+    game.addnewPlayer(data, socket);
   })
 
   socket.on(Constants.SOCKET_RESET, () => {
@@ -44,6 +44,10 @@ io.on('connection', socket => {
 
   socket.on(Constants.SOCKET_DEBUG_INFO, data => {
     game.processDebugInfo(data);
+  })
+
+  socket.on(Constants.SOCKET_MESSAGE, data => {
+    game.sendMessages(data);
   })
 
   socket.on(Constants.SOCKET_DISCONNECT, () => {

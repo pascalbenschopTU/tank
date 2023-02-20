@@ -8,8 +8,11 @@ const commands = [
 
 const white = "#FFFFFF"
 const red = "#FF0000"
+const green = "#00FF00"
 
-const console_id = "Console"
+const command_id = "Command"
+const message_id = "Message"
+const error_id = "Error"
 
 const error_message_isNan = "Please provide a number"
 
@@ -29,8 +32,10 @@ class Console {
         this.textbox = textbox;
         this.socket = socket;
 
-        this.writeInputToConsole()
-        this.autocomplete(console, commands)
+        this.focusOnKeyPress();
+        this.receiveMessages();
+        this.writeInputToConsole();
+        this.autocomplete(console, commands);
     }
 
     /**
@@ -43,13 +48,23 @@ class Console {
         return new Console(console, textbox, socket);
     }
 
+    focusOnKeyPress() {
+        document.addEventListener('keydown', (event) => {
+            if (document.getElementById("splashscreen").classList.contains('hidden')) {
+                if (event.key == "t") {
+                    document.getElementById("console").focus();
+                }
+            }
+        })
+    }
+
     /**
      * Write input to the console when pressing enter
      */
     writeInputToConsole() {
         this.console.addEventListener("keyup", (event) => {
             if (event.key == "Enter") {
-                this.textbox.addListItem(this.processInput(event.target.value), console_id, white);
+                this.processInput(event.target.value);
                 this.console.value = "";
             }
         })
@@ -64,33 +79,48 @@ class Console {
     processInput(input) {
         let inputArr = input.split(" ")
         let data = {}
-        if (inputArr.length > 1) {
-            if (inputArr[0] == commands[0]) {
-                let number = parseInt(inputArr[1])
-                if (isNaN(number)) {
-                    this.textbox.addListItem(error_message_isNan, console_id,red)
-                } else {
-                    Constants.BOT_DEFAULT_SPEED = number;
-                }
-            }
-        }
-        if (inputArr.length == 1) {
-            if (inputArr[0] == commands[1]) {
-                data.toggleTraining = true;
-            }
+        if (inputArr.length > 0) {
+            switch(inputArr[0]) {
+                case commands[0]:
+                    this.textbox.addListItem(input, command_id, green)
+                    let number = parseInt(inputArr[1])
+                    if (isNaN(number)) {
+                        this.textbox.addListItem(error_message_isNan, error_id, red)
+                    } else {
+                        Constants.BOT_DEFAULT_SPEED = number;
+                    }
+                    break;
+                case commands[1]:
+                    this.textbox.addListItem(input, command_id, green);
+                    data.toggleTraining = true;
+                    break;
+                default:
+                    data.socket_id = this.socket.id;
+                    data.message = input;
+                    this.sendMessages(data);
+                    break;
+                    
+            }  
         }
         
         this.sendDebugInfo(data);
-
-        return input
     }
 
     /**
-     * TODO: Send messages to server
+     * Receive messages from server
+     */
+    receiveMessages() {
+        this.socket.on(Constants.SOCKET_MESSAGE, (data) => {
+            this.textbox.addListItem(data.message, message_id, white)
+        })
+    }
+
+    /**
+     * Send messages to server
      * @param {Object} messages 
      */
-    sendMessages(messages) {
-        // this.socket.emit()
+    sendMessages(message) {
+        this.socket.emit(Constants.SOCKET_MESSAGE, message)
     }
 
     /**

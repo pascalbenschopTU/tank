@@ -145,17 +145,19 @@ class Game {
         this.deltaTime = currentTime - this.lastUpdateTime
         this.lastUpdateTime = currentTime
 
-        /**
-         * Perform a physics update and collision update for all entities
-         * that need it.
-         */
-        const entities = [
-            ...this.players.values(),
-            ...this.projectiles
-        ]
+        const entities = [...this.players.values(), ...this.projectiles]
 
         entities.forEach(entity => { entity.update(this.lastUpdateTime, this.deltaTime, this.walls) })
 
+        this.checkEntityCollisions(entities);
+        this.removeCollidedObjects()
+    }
+
+    /**
+     * Check for each entity whether it has collided with another entity
+     * @param {Array} entities 
+     */
+    checkEntityCollisions(entities) {
         for (let i = 0; i < entities.length; ++i) {
             for (let j = i + 1; j < entities.length; ++j) {
                 let e1 = entities[i]
@@ -189,10 +191,12 @@ class Game {
                 }
             }
         }
+    }
 
-        /**
-         * Filters out destroyed projectiles and powerups.
-         */
+    /**
+     * Remove collided entities
+     */
+    removeCollidedObjects() {
         this.projectiles = this.projectiles.filter(projectile => !projectile.destroyed)
         var keyToRemove = -100;
         for (let [key, player] of this.players) {
@@ -212,8 +216,6 @@ class Game {
      */
     updateLevel() {
         this.clearLevel();
-
-        this.syncDelay(500);
 
         this.level.updateCurrentLevel();
         this.bots = this.level.gameBots.map(position => new SimpleEnemy(position, this.level));
@@ -236,9 +238,9 @@ class Game {
      */
     clearLevel() {
         this.players.clear();
-        this.bots = [];
-        this.walls = [];
-        this.playerPositions = [];
+        this.bots.length = 0;
+        this.walls.length = 0;
+        this.playerPositions.length = 0;
     }
 
     /**
@@ -274,7 +276,7 @@ class Game {
 
         this.updateBots(players, this.projectiles);
 
-        this.clients.forEach((client, socketID) => {
+        this.clients.forEach((_, socketID) => {
             if (this.players.has(socketID)) {
                 const currentPlayer = this.players.get(socketID)
                 this.clients.get(socketID).emit(Constants.SOCKET_UPDATE, {
@@ -300,6 +302,18 @@ class Game {
                 projectiles.push(...botProjectiles)
             }
         }
+    }
+
+    sendMessages(data) {
+        // Add player name to message
+        data.message = this.players.get(data.socket_id).name + ": " + data.message;
+
+        this.clients.forEach((_, socketID) => {
+            if (this.players.has(socketID)) {
+                const currentPlayer = this.players.get(socketID)
+                this.clients.get(socketID).emit(Constants.SOCKET_MESSAGE, data);
+            }
+        })
     }
 
     /**
@@ -341,15 +355,6 @@ class Game {
             }
         })
     }
-
-
-    syncDelay(milliseconds){
-        var start = new Date().getTime();
-        var end=0;
-        while( (end-start) < milliseconds){
-            end = new Date().getTime();
-        }
-       }
 }
 
 module.exports = Game
