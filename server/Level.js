@@ -75,15 +75,21 @@ class Level {
         this.bots = [];
     }
 
-    
+    /**
+     * Get the length of the levels
+     * @returns {number} length of levels
+     */
+    getAmountOfLevels() {
+        return levels.length;
+    }
 
     /**
      * Return current level.
      * @returns {GameMap} current level.
      */
     updateCurrentLevel() {
-        this.makeLevel(levels[this.currentLevel]);
-        if (levels.length > this.currentLevel) 
+        this.makeLevel(this.currentLevel);
+        if (this.currentLevel < (levels.length - 1)) 
             this.currentLevel++;
         else
             this.currentLevel = 0;
@@ -91,9 +97,12 @@ class Level {
 
     /**
      * Make a level.
-     * @param {Array} level 
+     * @param {number} level 
      */
-    makeLevel(level) {
+    makeLevel(levelIndex) {
+        let level = levels[levelIndex]
+        this.currentLevel = levelIndex;
+
         this.removePreviousLevel();
         this.setLevelSize(new Vector(level[0][0].length, level.length))
         this.setLevelData(level);

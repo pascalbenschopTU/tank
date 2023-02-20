@@ -2,7 +2,7 @@ const Constants = require("../../../lib/Constants");
 const TextBox = require("./TextBox");
 
 const commands = [
-    "Debug_change_speed",
+    "set_level",
     "toggleLearning"
 ]
 
@@ -87,7 +87,7 @@ class Console {
                     if (isNaN(number)) {
                         this.textbox.addListItem(error_message_isNan, error_id, red)
                     } else {
-                        Constants.BOT_DEFAULT_SPEED = number;
+                        data.level = number;
                     }
                     break;
                 case commands[1]:

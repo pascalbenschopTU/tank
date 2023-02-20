@@ -111,13 +111,6 @@ class Game {
   }
 
   /**
-   * Reset the game
-   */
-  reset() {
-    this.socket.emit(Constants.SOCKET_RESET, {});
-  }
-
-  /**
    * Updates the client state of the game and sends user input to the server.
    */
   update() {

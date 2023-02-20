@@ -19,10 +19,3 @@ splashScreen.addEventListener('keyup', (event) => {
         game.run();
     }
 })
-
-
-
-
-document.getElementById("reset-button").onclick = function() {
-    game.reset();
-}

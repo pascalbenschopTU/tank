@@ -27,7 +27,7 @@ class Game {
         this.num_states = 7;
         this.num_actions = 4;
         this.batch_size = 128;
-        this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size);
+        this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size, + this.learning);
         //this.model = new QLearner(this.num_states, this.num_actions);
         this.memory = new Memory(10000);
 
@@ -64,13 +64,6 @@ class Game {
     }
 
     /**
-     * Reset bots.
-     */
-    reset() {
-        this.init();
-    }
-
-    /**
      * Add a new player and send map.
      * @param {String} name 
      * @param {Object} socket 
@@ -80,7 +73,7 @@ class Game {
             this.totalPlayers = 0;
         }
 
-        this.clients.set(socket.id, socket);
+        this.clients.set(socket.id, {socket: socket, name: name});
         this.players.set(socket.id, Player.create(
             this.playerPositions[this.totalPlayers],
             name, 
@@ -224,8 +217,8 @@ class Game {
 
         this.updateModelToBestModel();
 
-        this.clients.forEach((client, socketID) => {
-            this.addnewPlayer(Constants.PLAYER_NAME, this.clients.get(socketID));
+        this.clients.forEach((clientObject, socketID) => {
+            this.addnewPlayer(clientObject.name, clientObject.socket);
         });
 
         for (let i = 0; i < this.bots.length; i++) {
@@ -276,10 +269,10 @@ class Game {
 
         this.updateBots(players, this.projectiles);
 
-        this.clients.forEach((_, socketID) => {
+        this.clients.forEach((clientObject, socketID) => {
             if (this.players.has(socketID)) {
                 const currentPlayer = this.players.get(socketID)
-                this.clients.get(socketID).emit(Constants.SOCKET_UPDATE, {
+                clientObject.socket.emit(Constants.SOCKET_UPDATE, {
                     self: currentPlayer,
                     players: players,
                     projectiles: this.projectiles
@@ -308,10 +301,10 @@ class Game {
         // Add player name to message
         data.message = this.players.get(data.socket_id).name + ": " + data.message;
 
-        this.clients.forEach((_, socketID) => {
+        this.clients.forEach((clientObject, socketID) => {
             if (this.players.has(socketID)) {
                 const currentPlayer = this.players.get(socketID)
-                this.clients.get(socketID).emit(Constants.SOCKET_MESSAGE, data);
+                clientObject.socket.emit(Constants.SOCKET_MESSAGE, data);
             }
         })
     }
@@ -323,6 +316,12 @@ class Game {
     processDebugInfo(data) {
         if (data.toggleTraining) { 
             this.learning = !this.learning;
+        }
+        if (data.level >= 0) {
+            if (data.level < this.level.getAmountOfLevels()) {
+                this.clearLevel();
+                this.level.makeLevel(data.level);
+            }
         }
     }
 
@@ -347,9 +346,9 @@ class Game {
      * Sends the state of the game to all connected players.
      */
      sendMap() {
-        this.clients.forEach((client, socketID) => {
+        this.clients.forEach((clientObject, socketID) => {
             if (this.players.has(socketID)) {
-                this.clients.get(socketID).emit(Constants.SOCKET_MAP_UPDATE, {
+                clientObject.socket.emit(Constants.SOCKET_MAP_UPDATE, {
                     walls: this.walls
                 })
             }

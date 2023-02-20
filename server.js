@@ -34,10 +34,6 @@ io.on('connection', socket => {
     game.addnewPlayer(data, socket);
   })
 
-  socket.on(Constants.SOCKET_RESET, () => {
-    game.reset();
-  })
-
   socket.on(Constants.SOCKET_PLAYER_ACTION, data => {
     game.updatePlayerOnInput(socket.id, data);
   })
