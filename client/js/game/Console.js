@@ -133,15 +133,16 @@ class Console {
 
     /**
      * Create autocomplete items based on input
-     * @param {HTMLElement} console 
+     * @param {HTMLElement} gameConsole 
      * @param {Array} autoCompleteInput 
      */
-    autocomplete(console, autoCompleteInput) {
+    autocomplete(gameConsole, autoCompleteInput) {
         /*the autocomplete function takes two arguments,
         the text field element and an array of possible autocompleted values:*/
+        var previousInputs = [];
         var currentFocus;
         /*execute a function when someone writes in the text field:*/
-        console.addEventListener("input", function (e) {
+        gameConsole.addEventListener("input", function (e) {
             var a, b, i, val = e.target.value;
             /*close any already open lists of autocompleted values*/
             closeAllLists();
@@ -149,10 +150,10 @@ class Console {
             currentFocus = -1;
             /*create a DIV element that will contain the items (values):*/
             a = document.createElement("DIV");
-            a.setAttribute("id", console.id + autocomplete_div);
+            a.setAttribute("id", gameConsole.id + autocomplete_div);
             a.setAttribute("class", autocomplete_class);
             /*append the DIV element as a child of the autocomplete container:*/
-            console.parentNode.appendChild(a);
+            gameConsole.parentNode.appendChild(a);
             /*for each item in the array...*/
             for (i = 0; i < autoCompleteInput.length; i++) {
                 /*check if the item starts with the same letters as the text field value:*/
@@ -167,7 +168,7 @@ class Console {
                     /*execute a function when someone clicks on the item value (DIV element):*/
                     b.addEventListener("click", function (e) {
                         /*insert the value for the autocomplete text field:*/
-                        console.value = e.target.getElementsByTagName("input")[0].value;
+                        gameConsole.value = e.target.getElementsByTagName("input")[0].value;
                         /*close the list of autocompleted values,
                         (or any other open lists of autocompleted values:*/
                         closeAllLists();
@@ -177,8 +178,8 @@ class Console {
             }
         });
         /*execute a function presses a key on the keyboard:*/
-        console.addEventListener("keydown", function (e) {
-            var x = document.getElementById(console.id + autocomplete_div);
+        gameConsole.addEventListener("keydown", function (e) {
+            var x = document.getElementById(gameConsole.id + autocomplete_div);
             if (x) x = x.getElementsByTagName("div");
             if (e.key == "ArrowDown") {
                 /*If the arrow DOWN key is pressed,
@@ -197,7 +198,12 @@ class Console {
                 if (currentFocus > -1) {
                     /*and simulate a click on the "active" item:*/
                     if (x) {
-                        console.value = x[currentFocus].getElementsByTagName("input")[0].value;
+                        gameConsole.value = x[currentFocus].getElementsByTagName("input")[0].value;
+                    }
+                } else {
+                    // Get first value if tab is pressed
+                    if (x && x.length > 0) {
+                        gameConsole.value = x[0].getElementsByTagName("input")[0].value;
                     }
                 }
             } else if (e.key == "Enter") {
@@ -225,7 +231,7 @@ class Console {
             except the one passed as an argument:*/
             var x = document.getElementsByClassName(autocomplete_class);
             for (var i = 0; i < x.length; i++) {
-                if (elmnt != x[i] && elmnt != console) {
+                if (elmnt != x[i] && elmnt != gameConsole) {
                     x[i].parentNode.removeChild(x[i]);
                 }
             }
