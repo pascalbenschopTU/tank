@@ -15,6 +15,19 @@ const testLevels = [
     ]
 ]
 
+/**
+ * Get an initialised level from index
+ * @param {number} index 
+ * @returns {Level} initialised level
+ */
+function getInitialisedLevelFromIndex(index) {
+    var l = new Level();
+    l.setLevels(testLevels);
+    l.makeLevel(index);
+
+    return l;
+}
+
 // index = [
 //     [0,1,2], 
 //     [3,4,5], 
@@ -22,8 +35,7 @@ const testLevels = [
 // ]
 
 test("getSurroundings returns correct int for border", () => {
-    var l = new Level();
-    l.makeLevel(testLevels[0]);
+    l = getInitialisedLevelFromIndex(0);
 
     var position = new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT);
     
@@ -32,8 +44,7 @@ test("getSurroundings returns correct int for border", () => {
 })
 
 test("getSurroundings returns correct int for walls and border", () => {
-    var l = new Level();
-    l.makeLevel(testLevels[1]);
+    l = getInitialisedLevelFromIndex(1);
 
     var position = new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT);
     
@@ -42,8 +53,7 @@ test("getSurroundings returns correct int for walls and border", () => {
 })
 
 test("getCurrentMap returns correct map for empty map", () => {
-    var l = new Level();
-    l.makeLevel(testLevels[0]);
+    l = getInitialisedLevelFromIndex(0);
 
     var playerPosition = l.getCoordinatesFromPosition(new Vector(100, 100));
     var botPosition = l.getCoordinatesFromPosition(new Vector(Constants.CANVAS_WIDTH - 100, Constants.CANVAS_HEIGHT - 100));
@@ -53,8 +63,7 @@ test("getCurrentMap returns correct map for empty map", () => {
 })
 
 test("getCurrentMap returns correct map for map with walls", () => {
-    var l = new Level();
-    l.makeLevel(testLevels[1]);
+    l = getInitialisedLevelFromIndex(1);
 
     var playerPosition = l.getCoordinatesFromPosition(new Vector(100, 100));
     var botPosition = l.getCoordinatesFromPosition(new Vector(Constants.CANVAS_WIDTH - 100, Constants.CANVAS_HEIGHT - 100));

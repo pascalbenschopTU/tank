@@ -48,6 +48,9 @@ class Console {
         return new Console(console, textbox, socket);
     }
 
+    /**
+     * Set focus to the console on pressing t
+     */
     focusOnKeyPress() {
         document.addEventListener('keydown', (event) => {
             if (document.getElementById("splashscreen").classList.contains('hidden')) {

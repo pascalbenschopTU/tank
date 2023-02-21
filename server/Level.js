@@ -3,7 +3,7 @@ const Vector = require("../lib/Vector");
 const Wall = require('./Wall');
 const Util = require('../lib/Util')
 
-const levels = [
+const hardCodedLevels = [
     [
         [".......W......"],
         ["...WWW.WW....."],
@@ -64,7 +64,7 @@ const levels = [
  */
 class Level {
     constructor() {
-        this.levels = [];
+        this.levels = hardCodedLevels;
 
         this.currentLevel = 0;
 
@@ -80,7 +80,7 @@ class Level {
      * @returns {number} length of levels
      */
     getAmountOfLevels() {
-        return levels.length;
+        return this.levels.length;
     }
 
     /**
@@ -89,10 +89,18 @@ class Level {
      */
     updateCurrentLevel() {
         this.makeLevel(this.currentLevel);
-        if (this.currentLevel < (levels.length - 1)) 
+        if (this.currentLevel < (this.levels.length - 1)) 
             this.currentLevel++;
         else
             this.currentLevel = 0;
+    }
+
+    /**
+     * Set the levels with a new array.
+     * @param {Array} newLevels 
+     */
+    setLevels(newLevels) {
+        this.levels = newLevels;
     }
 
     /**
@@ -100,7 +108,7 @@ class Level {
      * @param {number} level 
      */
     makeLevel(levelIndex) {
-        let level = levels[levelIndex]
+        let level = this.levels[levelIndex]
         this.currentLevel = levelIndex;
 
         this.removePreviousLevel();
