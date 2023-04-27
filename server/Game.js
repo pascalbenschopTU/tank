@@ -253,6 +253,11 @@ class Game {
         if (network != null) {
             await network.save('file://./best_model')
             console.log("Saved model, updated new models with weights, updated model with reward ", reward)
+        } else {
+            await tf.loadLayersModel('file://./best_model/model.json').then(model => {
+                network = model;
+            })
+            console.log("Loaded model, updated new models with weights")
         }
 
         this.orchestrators.length = 0;
@@ -332,7 +337,7 @@ class Game {
         let finished = false;
         while (!finished) {
             this.orchestrators.forEach(async o => {
-                finished |= await o.updateAgent(this.learning);
+                finished &= await o.updateAgent(this.learning);
             });
             await new Promise(res => setTimeout(res, 500));
         }
