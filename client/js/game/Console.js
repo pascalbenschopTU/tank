@@ -49,6 +49,14 @@ class Console {
     }
 
     /**
+     * Logs a message to the console.
+     * @param {Object} message 
+     */
+    log(message) {
+        this.textbox.addListItem(String(message), message_id, white)
+    }
+
+    /**
      * Set focus to the console on pressing t
      */
     focusOnKeyPress() {

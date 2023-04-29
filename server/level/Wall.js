@@ -1,7 +1,7 @@
 
-const Util = require("../lib/Util");
-const Vector = require("../lib/Vector");
-const Entity = require("../lib/Entity");
+const Util = require("../../lib/Util");
+const Vector = require("../../lib/Vector");
+const Entity = require("../../lib/Entity");
 
 /**
  * Wall class

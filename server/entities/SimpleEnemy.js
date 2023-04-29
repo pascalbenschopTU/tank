@@ -2,7 +2,7 @@ const Vector = require('../../lib/Vector');
 const Player = require('./Player');
 const Util = require('../../lib/Util');
 const Constants = require('../../lib/Constants');
-const Level = require('../Level');
+const Level = require('../level/Level');
 
 const tf = require('@tensorflow/tfjs');
 

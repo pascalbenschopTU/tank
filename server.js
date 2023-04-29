@@ -12,7 +12,7 @@ const Game = require('./server/Game');
 
 const Constants = require('./lib/Constants');
 
-const game = Game.create(); //new Game();
+const game = new Game();
 
 
 app.set('port', Constants.PORT);
@@ -35,7 +35,7 @@ io.on('connection', socket => {
   })
 
   socket.on(Constants.SOCKET_PLAYER_ACTION, data => {
-    game.updatePlayerOnInput(socket.id, data);
+    game.updateOnPlayerInput(socket.id, data);
   })
 
   socket.on(Constants.SOCKET_DEBUG_INFO, data => {
@@ -43,7 +43,7 @@ io.on('connection', socket => {
   })
 
   socket.on(Constants.SOCKET_MESSAGE, data => {
-    game.sendMessages(data);
+    game.sendMessage(data);
   })
 
   socket.on(Constants.SOCKET_DISCONNECT, () => {
@@ -53,7 +53,6 @@ io.on('connection', socket => {
 
 setInterval(() => {
   game.update()
-  game.sendState()
 }, 1000 * Constants.Player_UPDATE_RATE);
 
 

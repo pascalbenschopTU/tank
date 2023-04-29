@@ -1,7 +1,7 @@
-const Constants = require("../lib/Constants");
-const Vector = require("../lib/Vector");
+const Constants = require("../../lib/Constants");
+const Vector = require("../../lib/Vector");
 const Wall = require('./Wall');
-const Util = require('../lib/Util')
+const Util = require('../../lib/Util')
 
 const hardCodedLevels = [
     [
