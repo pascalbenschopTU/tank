@@ -1,4 +1,3 @@
-const { exp } = require('@tensorflow/tfjs');
 const Util = require('../../lib/Util')
 
 test('Value above 2 PI should be normalized', () => {

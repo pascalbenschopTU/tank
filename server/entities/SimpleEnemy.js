@@ -4,8 +4,6 @@ const Util = require('../../lib/Util');
 const Constants = require('../../lib/Constants');
 const Level = require('../level/Level');
 
-const tf = require('@tensorflow/tfjs');
-
 
 /**
  * Simple enemy class.
@@ -239,22 +237,27 @@ class SimpleEnemy extends Player {
     /**
      * Get the state tensor of an agent
      * return the map with walls, playerposition and currentposition
-     * @returns {tf.Tensor2D}
+     * @returns {Array} state tensor
      */
     getStateTensor() {
         let agentCoordinates = this.level.getCoordinatesFromPosition(this.position);
         let closestPlayerCoordinates = this.closestPlayer == null ? Vector.zero() : this.level.getCoordinatesFromPosition(this.closestPlayer.position)
         
-        return tf.tensor2d([[...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)]]);
+        return [...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)];
     }
 
+    /**
+     * Get the observation tensor of an agent
+     * return the position of the agent, the position of the closest player, the angle of the agent and the velocity of the agent
+     * @returns {Array} observation tensor
+     */
     getObservationTensor() {
         let agentPosition = Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
         let closestPlayerPosition = this.closestPlayer == null ? Vector.zero() : Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
         let agentAngle = this.tankAngle / Math.PI;
         let velocity = this.velocity;
 
-        return tf.tensor2d([[...agentPosition.asArray, ...closestPlayerPosition.asArray, agentAngle, ...velocity.asArray]])
+        return [...agentPosition.asArray, ...closestPlayerPosition.asArray, agentAngle, ...velocity.asArray];
     }
 
     isNextStateInWall(new_position) {

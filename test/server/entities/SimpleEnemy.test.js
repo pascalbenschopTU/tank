@@ -1,5 +1,5 @@
 const Vector = require("../../../lib/Vector")
-const Level = require("../../../server/Level")
+const Level = require("../../../server/level/Level")
 const SimpleEnemy = require("../../../server/entities/SimpleEnemy");
 const Player = require("../../../server/entities/Player");
 
