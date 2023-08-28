@@ -1,6 +1,9 @@
 # tank
 tanks
 
+### Setting up the modules
+```npm install```
+
 ### Starting the game
 ```npm start```
 
