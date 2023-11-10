@@ -16,13 +16,12 @@ class Game {
         this.playerManagement = new PlayerManagement();
         this.entityManagement = new EntityManagement();
 
-        this.learning = true;
+        this.learning = false;
         this.layers = [128, 128];
         this.num_states = 7;
         this.num_actions = 4;
         this.batch_size = 128;
         this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size, + this.learning);
-        this.memory = new Memory(10000);
         this.orchestrator;
     }
 
@@ -45,13 +44,13 @@ class Game {
     update() {
         if (this.entityManagement.bots.length == 0) {
             this.updateLevel();
-            this.orchestrator = new Orchestrator(this.entityManagement.bots, this.model, this.memory);
+            this.orchestrator = new Orchestrator(this.entityManagement.bots, this.model, this.level);
         }
 
         this.entityManagement.updateEntities(this.playerManagement.players.values(), this.level.gameWalls);
         this.playerManagement.removeCollidedPlayers();
 
-        this.entityManagement.updateBots(this.playerManagement.players, this.learning, this.orchestrator);
+        this.entityManagement.updateBots(this.playerManagement.players.values(), this.learning, this.orchestrator);
         this.playerManagement.emitGameDataToClients(this.entityManagement.bots, this.entityManagement.projectiles);
     }
 

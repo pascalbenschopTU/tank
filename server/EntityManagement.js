@@ -24,7 +24,7 @@ class EntityManagement {
      * @param {Level} level 
      */
     addBots(level) {
-        this.bots.push(...level.gameBots.map(position => new SimpleEnemy(position, level)))
+        this.bots.push(...level.gameBotPositions.map(position => new SimpleEnemy(position, level)))
     }
 
     /**
@@ -101,31 +101,18 @@ class EntityManagement {
 
     /**
      * Updates bot based on players and projectiles.
-     * @param {Array<Player>} players 
-     * @param {Array<Bullet>} projectiles 
+     * @param {Array<Player>} players
+     * @param {Boolean} learning
+     * @param {Orchestrator} orchestrator
      */
     updateBots(players, learning, orchestrator) {
-        for (let i = 0; i < this.bots.length; i++) {
-            const bot = this.bots[i];
-            bot.updateOnPlayerInput(players, this.level);
-            if (bot.canShoot(this.walls)) {
-                const botProjectiles = bot.getProjectilesFromShot()
-                this.projectiles.push(...botProjectiles)
-            }
-            // if (learning) {
-            this.updateBotAI(orchestrator);
-            // }
+        const playerArray = [...players]
+        this.bots.forEach(bot => bot.updateBotsOnPlayers(playerArray, this.level))
+        if (learning) {
+            orchestrator.trainAgents()
+        } else {
+            this.projectiles = this.projectiles.concat(orchestrator.updateAgents())
         }
-    }
-
-    /**
-     * Gets called from server to periodically update the bots
-     */
-    updateBotAI(orchestrator) {
-        
-        orchestrator.updateAgents();
-        
-        // this.updateModelToBestModel();
     }
 }
 
