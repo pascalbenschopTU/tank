@@ -1,11 +1,8 @@
+// Import dependencies
 const Constants = require("../../../lib/Constants");
 const TextBox = require("./TextBox");
 
-const commands = [
-    "set_level",
-    "toggleLearning"
-]
-
+// Define constants
 const white = "#FFFFFF"
 const red = "#FF0000"
 const green = "#00FF00"
@@ -20,7 +17,13 @@ const autocomplete_div = "autocomplete-list"
 const autocomplete_class = "autocomplete-items"
 const autocomplete_active = "autocomplete-active"
 
+// Define command enum
+const CommandEnum = Object.freeze({
+    SET_LEVEL: "/set_level",
+    TOGGLE_LEARNING: "/toggleLearning"
+});
 
+// Define Console class
 class Console {
     /**
      * Create a new console
@@ -32,10 +35,11 @@ class Console {
         this.textbox = textbox;
         this.socket = socket;
 
+        // Set up event listeners
         this.focusOnKeyPress();
         this.receiveMessages();
         this.writeInputToConsole();
-        this.autocomplete(console, commands);
+        this.autocomplete(console, Object.values(CommandEnum));
     }
 
     /**
@@ -46,6 +50,14 @@ class Console {
      */
     static create(console, textbox, socket) {
         return new Console(console, textbox, socket);
+    }
+
+    /**
+     * Logs a message to the console.
+     * @param {Object} message 
+     */
+    log(message) {
+        this.textbox.addListItem(String(message), message_id, white)
     }
 
     /**
@@ -84,7 +96,7 @@ class Console {
         let data = {}
         if (inputArr.length > 0) {
             switch(inputArr[0]) {
-                case commands[0]:
+                case CommandEnum.SET_LEVEL:
                     this.textbox.addListItem(input, command_id, green)
                     let number = parseInt(inputArr[1])
                     if (isNaN(number)) {
@@ -93,7 +105,7 @@ class Console {
                         data.level = number;
                     }
                     break;
-                case commands[1]:
+                case CommandEnum.TOGGLE_LEARNING:
                     this.textbox.addListItem(input, command_id, green);
                     data.toggleTraining = true;
                     break;
@@ -246,4 +258,5 @@ class Console {
     }
 }
 
+// Export Console class
 module.exports = Console

@@ -32,6 +32,7 @@ class Game {
 
     this.self = null
     this.players = []
+    this.bots = []
     this.projectiles = []
     this.walls = []
 
@@ -81,9 +82,8 @@ class Game {
   onReceiveGameState(state) {
     this.self = state.self
     this.players = state.players
+    this.bots = state.bots
     this.projectiles = state.projectiles
-
-    //this.textbox.update(this.players)
   }
 
   onReceiveGameMap(state) {
@@ -143,6 +143,7 @@ class Game {
       this.projectiles.forEach(projectile => this.drawing.drawBullet(projectile, 15, 25))
 
       this.players.forEach(tank => this.drawing.drawTank(false, tank))
+      this.bots.forEach(tank => this.drawing.drawTank(false, tank))
       this.drawing.drawTank(true, this.self)
       this.walls.forEach(wall => this.drawing.drawWall(wall));
     }

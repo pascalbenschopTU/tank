@@ -2,9 +2,7 @@ const Vector = require('../../lib/Vector');
 const Player = require('./Player');
 const Util = require('../../lib/Util');
 const Constants = require('../../lib/Constants');
-const Level = require('../Level');
-
-const tf = require('@tensorflow/tfjs');
+const Level = require('../level/Level');
 
 
 /**
@@ -19,7 +17,7 @@ class SimpleEnemy extends Player {
      */
     constructor(position, level) {
         super();
-        this.name = Constants.BOT_NAME;
+        this.name = Constants.BOT_NAME + "_" + Util.generateRandomString(10);
         this.position = position;
         this.level = level;
         this.speed = Constants.BOT_DEFAULT_SPEED
@@ -39,12 +37,26 @@ class SimpleEnemy extends Player {
     }
 
     /**
+     * Update the bot.
+     * @param {Number} move of the bot
+     * @returns {Array<Bullet>} bullets
+     */
+    updateAI(move) {
+        this.moveAgent(move);
+        
+        if (this.canShoot(this.level.gameWalls)) {
+            return this.getProjectilesFromShot()
+        } else {
+            return []
+        }
+    }
+
+    /**
      * Check if bot can shoot.
      * @param {Array<Wall} walls 
      * @returns 
      */
     canShoot(walls) {  
-        return false
         return this.isPlayerReachable(walls)
             && this.isPlayerInSight() 
             && this.hasBotCooldown() 
@@ -134,10 +146,10 @@ class SimpleEnemy extends Player {
      * @param {Array<Player>} players
      * @param {Level} level
      */
-    updateOnPlayerInput(players) {
+    updateBotsOnPlayers(players) {
         this.updateSurroundings();
 
-        if (players && players.length > 1) {
+        if (players && players.length > 0) {
             this.closestPlayer = null;
             var closestDistance = Constants.CANVAS_HEIGHT * Constants.CANVAS_WIDTH;
             for (let i = 0; i < players.length; i++) {
@@ -205,29 +217,31 @@ class SimpleEnemy extends Player {
         }
     }
 
-    move(action) {
+    moveAgent(action) {
         switch (action) {
-            case "TURNLEFT":
+            case Constants.BOT_ACTION_TURNLEFT:
                 this.turnRate = -Constants.PLAYER_TURN_RATE;
                 this.velocity = Vector.zero();
                 break;
-            case "TURNRIGHT":
+            case Constants.BOT_ACTION_TURNRIGHT:
                 this.turnRate = Constants.PLAYER_TURN_RATE;
                 this.velocity = Vector.zero();
                 break;
-            case "FORWARD":
+            case Constants.BOT_ACTION_FORWARD:
                 this.velocity = Vector.fromPolar(Constants.BOT_DEFAULT_SPEED, this.tankAngle)
                 this.turnRate = 0;
                 break;
-            case "BACKWARD":
+            case Constants.BOT_ACTION_BACKWARD:
                 this.velocity = Vector.fromPolar(-Constants.BOT_DEFAULT_SPEED, this.tankAngle)
                 this.turnRate = 0;
                 break;
         }
-
-        return this.getDistanceToPlayer() < 50;
     }
 
+    /**
+     * Calculate the distance to the closest player.
+     * @returns {Number} distance to closest player
+     */
     getDistanceToPlayer() {
         if (this.closestPlayer == null) {
             return Infinity;
@@ -239,22 +253,27 @@ class SimpleEnemy extends Player {
     /**
      * Get the state tensor of an agent
      * return the map with walls, playerposition and currentposition
-     * @returns {tf.Tensor2D}
+     * @returns {Array} state tensor
      */
     getStateTensor() {
         let agentCoordinates = this.level.getCoordinatesFromPosition(this.position);
         let closestPlayerCoordinates = this.closestPlayer == null ? Vector.zero() : this.level.getCoordinatesFromPosition(this.closestPlayer.position)
         
-        return tf.tensor2d([[...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)]]);
+        return [...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)];
     }
 
+    /**
+     * Get the observation tensor of an agent
+     * return the position of the agent, the position of the closest player, the angle of the agent and the velocity of the agent
+     * @returns {Array} observation tensor
+     */
     getObservationTensor() {
         let agentPosition = Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
         let closestPlayerPosition = this.closestPlayer == null ? Vector.zero() : Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
         let agentAngle = this.tankAngle / Math.PI;
         let velocity = this.velocity;
 
-        return tf.tensor2d([[...agentPosition.asArray, ...closestPlayerPosition.asArray, agentAngle, ...velocity.asArray]])
+        return [...agentPosition.asArray, ...closestPlayerPosition.asArray, agentAngle, ...velocity.asArray];
     }
 
     isNextStateInWall(new_position) {
