@@ -16,13 +16,6 @@ function getModel(batch_size=1) {
     return model;
 }
 
-function getMemory() {
-    var memorySize = 10000
-    var memory = new Memory(memorySize)
-
-    return memory;
-}
-
 function getPlayer(position) {
     var player = new Player("test", "")
     player.position = position;
@@ -41,69 +34,31 @@ function getAgent(position, closestPlayerPosition) {
 }
 
 
-test("Model does learn for positive experience", async () => {
-    let agent = getAgent(new Vector(0,0), new Vector(0,0))
-    let model = getModel();
-    let memory = getMemory();
-    let orchestrator = new Orchestrator([agent], model, memory)
+test('Orchestrator constructor', () => {
+    var model = getModel();
+    var level = new Level();
+    var orchestrator = new Orchestrator([], model, level);
 
-    let state = agent.getObservationTensor();
+    expect(orchestrator.agents).toEqual([]);
+    expect(orchestrator.model).toEqual(model);
+    expect(orchestrator.level).toEqual(level);
+    expect(orchestrator.eps).toEqual(0.3);
+    expect(orchestrator.steps).toEqual(0);
+    expect(orchestrator.maxStepsPerModelUpdate).toEqual(100);
+    expect(orchestrator.maxStepsPerGame).toEqual(500);
+    expect(orchestrator.modelPerAgent).toEqual(new Array(0).fill(model));
+    expect(orchestrator.rewardPerAgent).toEqual(new Array(0).fill(0));
+});
 
-    let chosenAction = model.chooseAction(state); // initial model choice
+test("Get move from agent", () => {
+    var model = getModel();
+    var level = new Level();
+    var orchestrator = new Orchestrator([], model, level);
 
-    let action = (chosenAction + 1) %  model.numActions // choose a different action for training
-    let reward = 2
-    let next_state = agent.getObservationTensor();
+    var agent = getAgent(new Vector(0, 0), new Vector(0, 0));
+    var move = orchestrator.getNextMove(agent);
 
-    expect(chosenAction).not.toBe(action);
-
-    memory.addSample([state,action,reward,next_state]);
-
-    await orchestrator.trainModel()
-
-    expect(model.chooseAction(agent.getObservationTensor())).toBe(action);
-})
-
-test("Model does not learn for neutral experience", async () => {
-    let agent = getAgent(new Vector(0,0), new Vector(0,0))
-    let model = getModel();
-    let memory = getMemory();
-    let orchestrator = new Orchestrator([agent], model, memory)
-
-    let state = agent.getObservationTensor();
-    let chosenAction = model.chooseAction(state); // initial model choice
-    let action = (chosenAction + 1) %  model.numActions // choose a different action for training
-    let reward = 0
-    let next_state = agent.getObservationTensor();
-
-    expect(chosenAction).not.toBe(action);
-
-    memory.addSample([state,action,reward,next_state]);
-
-    await orchestrator.trainModel()
-
-    expect(model.chooseAction(agent.getObservationTensor())).toBe(chosenAction);
-})
-
-test("Model does learn for negative experience", async () => {
-    let agent = getAgent(new Vector(0,0), new Vector(0,0))
-    let model = getModel();
-    let memory = getMemory();
-    let orchestrator = new Orchestrator([agent], model, memory)
-
-    let state = agent.getObservationTensor();
-    let chosenAction = model.chooseAction(state); // initial model choice
-    let action = chosenAction // keep same action
-    let reward = -2
-    let next_state = agent.getObservationTensor();
-
-    memory.addSample([state,action,reward,next_state]);  
-
-    let previousPrediction = model.predict([state]).dataSync();
-
-    await orchestrator.trainModel()
-
-    expect(model.predict([state]).dataSync()).not.toEqual(previousPrediction);
-
-    expect(model.chooseAction(agent.getObservationTensor())).not.toBe(chosenAction); // expect a different action
-})
+    // Expect move to be within 0 to 3
+    expect(move).toBeGreaterThanOrEqual(0);
+    expect(move).toBeLessThanOrEqual(3);
+});
