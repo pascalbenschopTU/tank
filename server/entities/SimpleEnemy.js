@@ -251,31 +251,26 @@ class SimpleEnemy extends Player {
     }
 
     /**
-     * Get the state tensor of an agent
-     * return the map with walls, playerposition and currentposition
-     * @returns {Array} state tensor
-     */
-    getStateTensor() {
-        let agentCoordinates = this.level.getCoordinatesFromPosition(this.position);
-        let closestPlayerCoordinates = this.closestPlayer == null ? Vector.zero() : this.level.getCoordinatesFromPosition(this.closestPlayer.position)
-        
-        return [...this.level.getCurrentMap(closestPlayerCoordinates, agentCoordinates)];
-    }
-
-    /**
      * Get the observation tensor of an agent
      * return the position of the agent, the position of the closest player, the angle of the agent and the velocity of the agent
      * @returns {Array} observation tensor
      */
     getObservationTensor() {
-        let agentPosition = Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
-        let closestPlayerPosition = this.closestPlayer == null ? Vector.zero() : Vector.divide(this.position, new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT));
-        let agentAngle = this.tankAngle / Math.PI;
-        let velocity = this.velocity;
+        const canvasDimensions = new Vector(Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT);
+        let agentPosition = Vector.divide(this.position, canvasDimensions);
+        let closestPlayerPosition = this.closestPlayer == null ? Vector.zero() : Vector.divide(this.position, canvasDimensions);
 
-        return [...agentPosition.asArray, ...closestPlayerPosition.asArray, agentAngle, ...velocity.asArray];
+        const currentLevelLayout = this.level.getCurrentMap(closestPlayerPosition, agentPosition);
+
+        // Convert to 1d array
+        return currentLevelLayout.flat();
     }
 
+    /**
+     * Check if next state is in wall.
+     * @param {Vector} new_position 
+     * @returns boolean
+     */
     isNextStateInWall(new_position) {
         return this.level.isPositionInWall(this.level.getCoordinatesFromPosition(new_position));
     }

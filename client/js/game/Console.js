@@ -20,7 +20,8 @@ const autocomplete_active = "autocomplete-active"
 // Define command enum
 const CommandEnum = Object.freeze({
     SET_LEVEL: "/set_level",
-    TOGGLE_LEARNING: "/toggleLearning"
+    TOGGLE_LEARNING: "/toggleLearning",
+    SAVE_WEIGHTS: "/save_weights",
 });
 
 // Define Console class
@@ -108,6 +109,10 @@ class Console {
                 case CommandEnum.TOGGLE_LEARNING:
                     this.textbox.addListItem(input, command_id, green);
                     data.toggleTraining = true;
+                    break;
+                case CommandEnum.SAVE_WEIGHTS:
+                    this.textbox.addListItem(input, command_id, green);
+                    data.saveWeights = true;
                     break;
                 default:
                     data.socket_id = this.socket.id;

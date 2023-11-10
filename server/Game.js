@@ -17,11 +17,11 @@ class Game {
         this.entityManagement = new EntityManagement();
 
         this.learning = false;
-        this.layers = [128, 128];
-        this.num_states = 7;
-        this.num_actions = 4;
-        this.batch_size = 128;
-        this.model = new Model(this.layers, this.num_states, this.num_actions, this.batch_size, + this.learning);
+        this.layers = [32, 64, 32];
+        this.numStates = this.level.getLevelPositionsTotal();
+        this.numActions = 4;
+        this.batchSize = 32;
+        this.model = new Model(this.layers, this.numStates, this.numActions, this.batchSize, + this.learning);
         this.orchestrator;
     }
 
@@ -43,6 +43,9 @@ class Game {
      */
     update() {
         if (this.entityManagement.bots.length == 0) {
+            this.numStates = this.level.getLevelPositionsTotal();
+            this.model = new Model(this.layers, this.numStates, this.numActions, this.batchSize, + this.learning);
+            
             this.updateLevel();
             this.orchestrator = new Orchestrator(this.entityManagement.bots, this.model, this.level);
         }
@@ -87,6 +90,9 @@ class Game {
                 this.clearLevel();
                 this.level.makeLevel(data.level);
             }
+        }
+        if (data.saveWeights) {
+            this.orchestrator.model.saveWeights();
         }
     }
 }

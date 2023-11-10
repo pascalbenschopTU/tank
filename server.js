@@ -53,7 +53,7 @@ io.on('connection', socket => {
 
 setInterval(() => {
   game.update()
-}, 1000 * Constants.Player_UPDATE_RATE);
+}, 1000 * Constants.UPDATE_RATE);
 
 
 

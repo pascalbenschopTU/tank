@@ -76,6 +76,16 @@ class Level {
     }
 
     /**
+     * Get the amount of positions of the level.
+     * @returns {Number} size of level
+     */
+    getLevelPositionsTotal() {
+        let level = this.levels[this.currentLevel];
+
+        return level[0][0].length * level.length;
+    }
+
+    /**
      * Get the length of the levels
      * @returns {number} length of levels
      */

@@ -88,7 +88,8 @@ class Player extends Entity {
   update(lastUpdateTime, deltaTime, walls) {
 	var previousPos = this.position.copy();
 	this.lastUpdateTime = lastUpdateTime
-	this.position.add(Vector.scale(this.velocity, deltaTime))
+	var scaleFactor = Constants.DEFAULT_UPDATE_RATE / Constants.UPDATE_RATE
+	this.position.add(Vector.scale(this.velocity, deltaTime * scaleFactor))
 	this.boundToWorld()
 	this.checkPlayerCollision(walls, previousPos);
 	this.tankAngle = Util.normalizeAngle(this.tankAngle + this.turnRate * deltaTime)
