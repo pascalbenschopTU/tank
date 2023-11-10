@@ -1,12 +1,12 @@
 const Drawing = require('./Drawing')
 const Input = require('./Input')
-//const Leaderboard = require('./Leaderboard')
+const Console = require("./Console")
 const Viewport = require('./Viewport')
 
 const Constants = require('../../../lib/Constants')
 const Vector = require('../../../lib/Vector')
 const Util = require('../../../lib/Util')
-const Leaderboard = require('./Leaderboard')
+const TextBox = require('./TextBox')
 
 /**
  * Game class.
@@ -18,19 +18,21 @@ class Game {
    * @param {Viewport} viewport The Viewport object for coordinate translation
    * @param {Drawing} drawing The Drawing object for canvas rendering
    * @param {Input} input The Input object for tracking user input
-   * @param {Leaderboard} leaderboard The Leaderboard object handling the
+   * @param {Leaderboard} textbox The Leaderboard object handling the
    *   leaderboard update
    */
-  constructor(socket, viewport, drawing, input, leaderboard) {
+  constructor(socket, viewport, drawing, input, textbox, console) {
     this.socket = socket
 
     this.viewport = viewport
     this.drawing = drawing
     this.input = input
-    this.leaderboard = leaderboard
+    this.textbox = textbox
+    this.console = console
 
     this.self = null
     this.players = []
+    this.bots = []
     this.projectiles = []
     this.walls = []
 
@@ -46,19 +48,18 @@ class Game {
    *   game to
    * @return {Game}
    */
-  static create(socket, canvasElementID, textboxElementID) {
+  static create(socket, canvasElementID, textboxElementID, consoleElementID) {
     const canvas = document.getElementById(canvasElementID)
     canvas.width = Constants.CANVAS_WIDTH // = document.documentElement.clientWidth * 0.6
     canvas.height = Constants.CANVAS_HEIGHT //= document.documentElement.clientHeight * 0.7
 
-    const textbox = document.getElementById(textboxElementID)
-    
     const viewport = Viewport.create(canvas)
     const drawing = Drawing.create(canvas, viewport)
     const input = Input.create(document, canvas)
-    const leaderboard = Leaderboard.create(textbox)
+    const textbox = TextBox.create(document.getElementById(textboxElementID))
+    const console = Console.create(document.getElementById(consoleElementID), textbox, socket)
 
-    const game = new Game(socket, viewport, drawing, input, leaderboard)
+    const game = new Game(socket, viewport, drawing, input, textbox, console)
     game.init()
     return game
   }
@@ -81,9 +82,8 @@ class Game {
   onReceiveGameState(state) {
     this.self = state.self
     this.players = state.players
+    this.bots = state.bots
     this.projectiles = state.projectiles
-
-    this.leaderboard.update(this.players)
   }
 
   onReceiveGameMap(state) {
@@ -110,30 +110,26 @@ class Game {
     window.cancelAnimationFrame(this.animationFrameId)
   }
 
-  reset() {
-    this.socket.emit(Constants.SOCKET_RESET, {});
-  }
-
   /**
    * Updates the client state of the game and sends user input to the server.
    */
   update() {
     if (this.self) {
-      //this.viewport.update(this.deltaTime)
-
       const absoluteMouseCoords = this.viewport.toCanvas(
         Vector.fromArray(this.input.mouseCoords));
 
       const playerToMouseVector = Vector.sub(absoluteMouseCoords, this.self.position);
 
-      this.socket.emit(Constants.SOCKET_PLAYER_ACTION, {
-        up: this.input.up,
-        down: this.input.down,
-        left: this.input.left,
-        right: this.input.right,
-        shoot: this.input.mouseDown,
-        turretAngle: Util.normalizeAngle(playerToMouseVector.angle)
-      })
+      if (document.getElementById("console") !== document.activeElement) {
+        this.socket.emit(Constants.SOCKET_PLAYER_ACTION, {
+          up: this.input.up,
+          down: this.input.down,
+          left: this.input.left,
+          right: this.input.right,
+          shoot: this.input.mouseDown,
+          turretAngle: Util.normalizeAngle(playerToMouseVector.angle)
+        })
+      }
     }
   }
 
@@ -147,6 +143,7 @@ class Game {
       this.projectiles.forEach(projectile => this.drawing.drawBullet(projectile, 15, 25))
 
       this.players.forEach(tank => this.drawing.drawTank(false, tank))
+      this.bots.forEach(tank => this.drawing.drawTank(false, tank))
       this.drawing.drawTank(true, this.self)
       this.walls.forEach(wall => this.drawing.drawWall(wall));
     }

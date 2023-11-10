@@ -11,21 +11,22 @@
       <h1>Tankz</h1>
     </header>
     <main>
+      <div class="splashscreen" id="splashscreen">
+        <h1 class="splashscreen-header">Welcome to tanks!</h1>
+        <input type="text" class="splashscreen-input" id="splashscreen-input" placeholder="Name">
+
+      </div>
       <div>
         <canvas id="canvas"></canvas>
-        <div class="wrapper">
-          <ul id="textbox"></ul>
+        <div id="sidebar" class="wrapper">
+          <div class="scrollbox">
+            <ul id="textbox" class="messages"></ul>
+          </div>
+          <input type="text" placeholder="Console" id="console" class="consoleInput">
         </div>
       </div>
       
-    </main>
-    <footer>
-      <button id="reset-button">Reset</button>
-    </footer>
-    
-    
-    
-
+    </main> 
   </body>
   
   <script src="/socket.io/socket.io.js"></script>

@@ -19,28 +19,28 @@ class Player extends Entity {
    * @param {number} angle The player's starting tank angle
    */
   constructor(name, socketID) {
-    super();
+	super();
 
-    this.name = name
-    this.socketID = socketID
+	this.name = name
+	this.socketID = socketID
 
-    this.lastUpdateTime = 0
-    // angle that the tank is facing
-    this.tankAngle = 0
-    // angle that the turret is facing
-    this.turretAngle = 0
-    // rate at which the tankangle is changing
-    this.turnRate = 0
-    this.speed = Constants.PLAYER_DEFAULT_SPEED
-    this.shotCooldown = Constants.PLAYER_SHOT_COOLDOWN
-    this.lastShotTime = 0
-    this.hitboxSize = Constants.PLAYER_DEFAULT_HITBOX_SIZE
+	this.lastUpdateTime = 0
+	// angle that the tank is facing
+	this.tankAngle = 0
+	// angle that the turret is facing
+	this.turretAngle = 0
+	// rate at which the tankangle is changing
+	this.turnRate = 0
+	this.speed = Constants.PLAYER_DEFAULT_SPEED
+	this.shotCooldown = Constants.PLAYER_SHOT_COOLDOWN
+	this.lastShotTime = 0
+	this.hitboxSize = Constants.PLAYER_DEFAULT_HITBOX_SIZE
 
-    this.bullets = 5
+	this.bullets = 5
 
-    this.kills = 0
-    this.deaths = 0
-    this.destroyed = false;
+	this.kills = 0
+	this.deaths = 0
+	this.destroyed = false;
   }
 
   /**
@@ -51,10 +51,10 @@ class Player extends Entity {
    * @return {Player}
    */
   static create(position, name, socketID) {
-    const player = new Player(name, socketID)
-    player.spawn(position);
+	const player = new Player(name, socketID)
+	player.spawn(position);
 
-    return player
+	return player
   }
 
   /**
@@ -62,22 +62,22 @@ class Player extends Entity {
    * @param {Object} data A JSON Object storing the input state
    */
   updateOnInput(data) {
-    if (data.up) {
-      this.velocity = Vector.fromPolar(this.speed, this.tankAngle)
-    } else if (data.down) {
-      this.velocity = Vector.fromPolar(-this.speed, this.tankAngle)
-    } else if (!(data.up ^ data.down)) {
-      this.velocity = Vector.zero()
-    }
+	if (data.up) {
+	  this.velocity = Vector.fromPolar(this.speed, this.tankAngle)
+	} else if (data.down) {
+	  this.velocity = Vector.fromPolar(-this.speed, this.tankAngle)
+	} else if (!(data.up ^ data.down)) {
+	  this.velocity = Vector.zero()
+	}
 
-    if (data.right) {
-      this.turnRate = Constants.PLAYER_TURN_RATE
-    } else if (data.left) {
-      this.turnRate = -Constants.PLAYER_TURN_RATE
-    } else if (!(data.left ^ data.right)) {
-      this.turnRate = 0
-    }
-    this.turretAngle = data.turretAngle
+	if (data.right) {
+	  this.turnRate = Constants.PLAYER_TURN_RATE
+	} else if (data.left) {
+	  this.turnRate = -Constants.PLAYER_TURN_RATE
+	} else if (!(data.left ^ data.right)) {
+	  this.turnRate = 0
+	}
+	this.turretAngle = data.turretAngle
   }
 
   /**
@@ -86,12 +86,12 @@ class Player extends Entity {
    * @param {number} deltaTime The timestep to compute the update with
    */
   update(lastUpdateTime, deltaTime, walls) {
-    var previousPos = this.position.copy();
-    this.lastUpdateTime = lastUpdateTime
-    this.position.add(Vector.scale(this.velocity, deltaTime))
-    this.boundToWorld()
-    this.checkPlayerCollision(walls, previousPos);
-    this.tankAngle = Util.normalizeAngle(this.tankAngle + this.turnRate * deltaTime)
+	var previousPos = this.position.copy();
+	this.lastUpdateTime = lastUpdateTime
+	this.position.add(Vector.scale(this.velocity, deltaTime))
+	this.boundToWorld()
+	this.checkPlayerCollision(walls, previousPos);
+	this.tankAngle = Util.normalizeAngle(this.tankAngle + this.turnRate * deltaTime)
   }
 
   /**
@@ -99,31 +99,22 @@ class Player extends Entity {
    * @param {Array<Wall>} walls 
    */
    checkPlayerCollision(walls, previousPos) {
-    walls.forEach(wall => {
-        var minX = wall.minX - this.hitboxSize;
-        var minY = wall.minY - this.hitboxSize;
-        var maxX = wall.maxX + this.hitboxSize;
-        var maxY = wall.maxY + this.hitboxSize;
-        if (Util.inBound(this.position.y, minY, maxY)) {
-          this.position.x = Util.reverseBound(
-            this.position.x, previousPos.x, minX, maxX
-          );
-        }
-        if (Util.inBound(this.position.x, minX, maxX)) {
-          this.position.y = Util.reverseBound(
-            this.position.y, previousPos.y, minY, maxY
-          );
-        }
-    });
-  }
-
-  /**
-   * TODO: Fix tank running into wall between 2 walls
-   */
-  reverseBound() {
-    if (Util.inBound(this.position.x, minX, maxX)) {
-
-    }
+	walls.forEach(wall => {
+		var minX = wall.minX - this.hitboxSize;
+		var minY = wall.minY - this.hitboxSize;
+		var maxX = wall.maxX + this.hitboxSize;
+		var maxY = wall.maxY + this.hitboxSize;
+		if (Util.inBound(this.position.y, minY, maxY)) {
+		  this.position.x = Util.reverseBound(
+			this.position.x, previousPos.x, minX, maxX
+		  );
+		}
+		if (Util.inBound(this.position.x, minX, maxX)) {
+		  this.position.y = Util.reverseBound(
+			this.position.y, previousPos.y, minY, maxY
+		  );
+		}
+	});
   }
 
   /**
@@ -131,7 +122,7 @@ class Player extends Entity {
    * @return {boolean}
    */
   canShoot() {
-    return this.lastUpdateTime > this.lastShotTime + this.shotCooldown && this.bullets > 0;
+	return this.lastUpdateTime > this.lastShotTime + this.shotCooldown && this.bullets > 0;
   }
 
   /**
@@ -141,12 +132,12 @@ class Player extends Entity {
    * @return {Array<Bullet>}
    */
   getProjectilesFromShot() {
-    const bullets = [Bullet.createFromPlayer(this)];
+	const bullets = [Bullet.createFromPlayer(this)];
 
-    this.bullets -= 1;
-    
-    this.lastShotTime = this.lastUpdateTime
-    return bullets
+	this.bullets -= 1;
+	
+	this.lastShotTime = this.lastUpdateTime
+	return bullets
   }
 
   /**
@@ -154,14 +145,14 @@ class Player extends Entity {
    * @return {boolean}
    */
   isDead() {
-    return this.health <= 0
+	return this.health <= 0
   }
 
   /**
    * Handles the spawning (and respawning) of the player.
    */
   spawn(position) {
-    this.position = position.copy();
+	this.position = position.copy();
   }
 }
 

@@ -4,3 +4,7 @@ https://github.com/penumbragames/tankanarchy
 https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
 https://www.gamedev.net/tutorials/programming/artificial-intelligence/the-total-beginners-guide-to-game-ai-r4942/
+
+Info on error property 'backend' is undefined:
+Check if async call in tf.tidy -> variables will be garbage collected before call is finished
+Check if multiple imports of (different versions of) tensorflow are in files

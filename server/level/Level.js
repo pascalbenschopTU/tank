@@ -1,9 +1,18 @@
-const Constants = require("../lib/Constants");
-const Vector = require("../lib/Vector");
+const Constants = require("../../lib/Constants");
+const Vector = require("../../lib/Vector");
 const Wall = require('./Wall');
-const Util = require('../lib/Util')
+const Util = require('../../lib/Util')
 
-const levels = [
+const hardCodedLevels = [
+    [
+        [".......W......"],
+        ["...WWW.WW....."],
+        [".....W.......B"],
+        ["..P..WWWW....B"],
+        ["...W...W.....B"],
+        ["...W.WWWW....."],
+        ["...W.........."]
+    ],
     [
         ["*****W******"],
         ["*****W******"],
@@ -55,7 +64,7 @@ const levels = [
  */
 class Level {
     constructor() {
-        this.levels = [];
+        this.levels = hardCodedLevels;
 
         this.currentLevel = 0;
 
@@ -63,28 +72,45 @@ class Level {
         this.levelData = [];
         this.playerPositions = [];
         this.walls = [];
-        this.bots = [];
+        this.botPositions = [];
     }
 
-    
+    /**
+     * Get the length of the levels
+     * @returns {number} length of levels
+     */
+    getAmountOfLevels() {
+        return this.levels.length;
+    }
 
     /**
      * Return current level.
      * @returns {GameMap} current level.
      */
     updateCurrentLevel() {
-        this.makeLevel(levels[this.currentLevel]);
-        if (levels.length > this.currentLevel) 
+        this.makeLevel(this.currentLevel);
+        if (this.currentLevel < (this.levels.length - 1)) 
             this.currentLevel++;
         else
             this.currentLevel = 0;
     }
 
     /**
-     * Make a level.
-     * @param {Array} level 
+     * Set the levels with a new array.
+     * @param {Array} newLevels 
      */
-    makeLevel(level) {
+    setLevels(newLevels) {
+        this.levels = newLevels;
+    }
+
+    /**
+     * Make a level.
+     * @param {number} level 
+     */
+    makeLevel(levelIndex) {
+        let level = this.levels[levelIndex]
+        this.currentLevel = levelIndex;
+
         this.removePreviousLevel();
         this.setLevelSize(new Vector(level[0][0].length, level.length))
         this.setLevelData(level);
@@ -101,7 +127,7 @@ class Level {
                         this.makeWall(new Vector(new_x, new_y), x + 1, y + 1); // To make walls more overlapping add small value
                         break;
                     case "B":
-                        this.makeBot(new Vector(new_x, new_y));
+                        this.makeBotPosition(new Vector(new_x, new_y));
                         break;
                     case "P":
                         this.makePlayerPosition(new Vector(new_x, new_y));
@@ -116,15 +142,15 @@ class Level {
     }
 
     removePreviousLevel() {
-        this.bots = [];
+        this.botPositions = [];
         this.walls = [];
         this.playerPositions = [];
     }
 
-    get gameBots() {
+    get gameBotPositions() {
         var result = []
-        this.bots.forEach(bot => {
-            result.push(bot.copy());
+        this.botPositions.forEach(botPosition => {
+            result.push(botPosition.copy());
         });
 
         return result;
@@ -186,8 +212,8 @@ class Level {
      * Add bot to map.
      * @param {Vector} position 
      */
-    makeBot(position) {
-        this.bots.push(position)
+    makeBotPosition(position) {
+        this.botPositions.push(position)
     }
 
     getSurroundings(position) {
@@ -195,9 +221,7 @@ class Level {
         // Get index of position of agent in level
         var x = Math.round((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x - 1));
         var y = Math.round((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y - 1));
-        //console.log("x,y ",x,y," pos xy ",position.x, position.y, " canvas ", Constants.CANVAS_WIDTH, Constants.CANVAS_HEIGHT, " levelsize ", this.levelSize);
         for (var i = y-1; i <= y+1; i++) {
-            //var surroundingsX = []
             for (var j = x-1; j <= x+1; j++) {
                 if (i < 0 || j < 0 || i >= this.levelSize.y || j >= this.levelSize.x) {
                     surroundings.push(1);
@@ -207,10 +231,45 @@ class Level {
                     surroundings.push(0);
                 }
             }
-            //surroundings.push(surroundingsX);
         }
 
         return surroundings;
+    }
+
+    /**
+     * Get a 1d map of the level with player position and bot position.
+     * @param {Vector} playerPosition 
+     * @param {Vector} botPosition 
+     * @returns {Array} map
+     */
+    getCurrentMap(playerPosition, botPosition) {
+        let map = Array(this.levelSize.x * this.levelSize.y).fill(0);
+        if (this.isPositionInsideLevel(playerPosition) && this.isPositionInsideLevel(botPosition)) {
+            for (var y_index = 0; y_index < this.levelSize.y; y_index++) {
+                if (this.levelData[y_index].length > 0) {
+                    var currentRow = this.levelData[y_index][0];
+                    for (var x_index = 0; x_index < currentRow.length; x_index++) {
+                        var index = y_index * this.levelSize.y + x_index
+                        map[index] = 0;
+                        if (playerPosition.y == y_index && playerPosition.x == x_index) {
+                            map[index] = 1;
+                        }
+                        if (botPosition.y == y_index && botPosition.x == x_index) {
+                            map[index] = 2;
+                        }
+                        if (currentRow[x_index] == "W") {
+                            map[index] = 3;
+                        }
+                    }
+                }
+            }
+        }
+
+        return map;
+    }
+
+    isPositionInsideLevel(position) {
+        return (position.x >= 0 && position.y >= 0) && (position.x < this.levelSize.x && position.y < this.levelSize.y);
     }
 
     /**
@@ -221,6 +280,18 @@ class Level {
     getCoordinatesFromPosition(position) {
         var x = Math.ceil((position.x / Constants.CANVAS_WIDTH) * (this.levelSize.x)) -1;
         var y = Math.ceil((position.y / Constants.CANVAS_HEIGHT) * (this.levelSize.y)) -1;
+
+        return new Vector(x,y);
+    }
+
+    /**
+     * Get the coordinates from [0, 1]
+     * @param {Vector} position 
+     * @returns {Vector} normalized position
+     */
+    getCoordinatesNormalized(position) {
+        var x = position.x / Constants.CANVAS_WIDTH;
+        var y = position.y / Constants.CANVAS_HEIGHT;
 
         return new Vector(x,y);
     }

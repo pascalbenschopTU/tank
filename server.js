@@ -12,7 +12,7 @@ const Game = require('./server/Game');
 
 const Constants = require('./lib/Constants');
 
-const game = Game.create(); //new Game();
+const game = new Game();
 
 
 app.set('port', Constants.PORT);
@@ -23,23 +23,27 @@ app.use('/dist', express.static(path.join(__dirname, '/dist')));
 
 // Routing
 app.get('/', function(request, response) {
-  response.sendFile(path.join(__dirname, 'view/index.html'));
+  response.sendFile(path.join(__dirname + '/client/view/index.html'));
 });
 
 
 
 
 io.on('connection', socket => {
-  socket.on(Constants.SOCKET_NEW_PLAYER, (data, callback) => {
-    game.addnewPlayer("kek", socket);
-  })
-
-  socket.on(Constants.SOCKET_RESET, () => {
-    game.reset();
+  socket.on(Constants.SOCKET_NEW_PLAYER, (data) => {
+    game.addnewPlayer(data, socket);
   })
 
   socket.on(Constants.SOCKET_PLAYER_ACTION, data => {
-    game.updatePlayerOnInput(socket.id, data);
+    game.updateOnPlayerInput(socket.id, data);
+  })
+
+  socket.on(Constants.SOCKET_DEBUG_INFO, data => {
+    game.processDebugInfo(data);
+  })
+
+  socket.on(Constants.SOCKET_MESSAGE, data => {
+    game.sendMessage(data);
   })
 
   socket.on(Constants.SOCKET_DISCONNECT, () => {
@@ -49,12 +53,8 @@ io.on('connection', socket => {
 
 setInterval(() => {
   game.update()
-  game.sendState()
 }, 1000 * Constants.Player_UPDATE_RATE);
 
-setInterval(() => {
-  game.updateBotAI()
-}, 1000 * Constants.BOT_UPDATE_RATE);
 
 
 server.listen(Constants.PORT, function() {
