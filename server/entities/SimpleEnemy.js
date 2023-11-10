@@ -263,7 +263,7 @@ class SimpleEnemy extends Player {
         const currentLevelLayout = this.level.getCurrentMap(closestPlayerPosition, agentPosition);
 
         // Convert to 1d array
-        return currentLevelLayout.flat();
+        return [...currentLevelLayout.flat(), ...[this.tankAngle, this.velocity.x, this.velocity.y]];
     }
 
     /**

@@ -18,7 +18,7 @@ class Game {
 
         this.learning = false;
         this.layers = [32, 64, 32];
-        this.numStates = this.level.getLevelPositionsTotal();
+        this.numStates = this.level.getLevelPositionsTotal() + 3;
         this.numActions = 4;
         this.batchSize = 32;
         this.model = new Model(this.layers, this.numStates, this.numActions, this.batchSize, + this.learning);
@@ -43,7 +43,7 @@ class Game {
      */
     update() {
         if (this.entityManagement.bots.length == 0) {
-            this.numStates = this.level.getLevelPositionsTotal();
+            this.numStates = this.level.getLevelPositionsTotal() + 3;
             this.model = new Model(this.layers, this.numStates, this.numActions, this.batchSize, + this.learning);
             
             this.updateLevel();
