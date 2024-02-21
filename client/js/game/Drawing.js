@@ -53,7 +53,7 @@ class Drawing {
     if (isSelf) {
       colour = Constants.DRAWING_SELF_COLOUR;
     }
-    if (player.name == "bot") {
+    if (player.name.includes("bot") && player.name.length == 14) {
       colour = Constants.DRAWING_BOT_COLOUR;
     }
 
@@ -134,27 +134,34 @@ class Drawing {
   }
   
   /**
-   * 
+   * Draws a tank skeleton to the canvas.
    * @param {Player} player 
    * @param {string} colour 
    * @param {number} width 
    * @param {number} length 
    */
   drawTankSkeleton(player, colour, width, length) {
-      this.context.save();
-  
-      var skPoly = this.getTankSkeletonPolygon(player, width, length);
-      this.context.beginPath();
-      for(var i = 0, plen = skPoly.points.length; i < plen; i++) {
-          var pFunc = (i === 0) ? this.context.moveTo : this.context.lineTo;
-          pFunc.call(this.context, skPoly.x + skPoly.points[i].x, skPoly.y + skPoly.points[i].y);
-      }
-      this.context.closePath();
-      this.context.strokeStyle = "#000";
-      this.context.fillStyle = colour;
-      this.context.stroke();
-      this.context.fill();
-      this.context.restore();
+    this.context.save();
+
+    var skPoly = this.getTankSkeletonPolygon(player, width, length);
+    this.context.beginPath();
+    for(var i = 0, plen = skPoly.points.length; i < plen; i++) {
+      var pFunc = (i === 0) ? this.context.moveTo : this.context.lineTo;
+      pFunc.call(this.context, skPoly.x + skPoly.points[i].x, skPoly.y + skPoly.points[i].y);
+    }
+    this.context.closePath();
+    this.context.strokeStyle = "#000";
+    this.context.fillStyle = colour;
+    this.context.stroke();
+    this.context.fill();
+
+    // Draw name above tank skeleton
+    this.context.fillStyle = "#000";
+    this.context.font = "bold 12px Arial";
+    this.context.textAlign = "center";
+    this.context.fillText(player.name, player.position.x, player.position.y - 20);
+
+    this.context.restore();
   }
   
   

@@ -72,7 +72,7 @@ class Level {
         this.levelData = [];
         this.playerPositions = [];
         this.walls = [];
-        this.bots = [];
+        this.botPositions = [];
     }
 
     /**
@@ -127,7 +127,7 @@ class Level {
                         this.makeWall(new Vector(new_x, new_y), x + 1, y + 1); // To make walls more overlapping add small value
                         break;
                     case "B":
-                        this.makeBot(new Vector(new_x, new_y));
+                        this.makeBotPosition(new Vector(new_x, new_y));
                         break;
                     case "P":
                         this.makePlayerPosition(new Vector(new_x, new_y));
@@ -142,15 +142,15 @@ class Level {
     }
 
     removePreviousLevel() {
-        this.bots = [];
+        this.botPositions = [];
         this.walls = [];
         this.playerPositions = [];
     }
 
-    get gameBots() {
+    get gameBotPositions() {
         var result = []
-        this.bots.forEach(bot => {
-            result.push(bot.copy());
+        this.botPositions.forEach(botPosition => {
+            result.push(botPosition.copy());
         });
 
         return result;
@@ -212,8 +212,8 @@ class Level {
      * Add bot to map.
      * @param {Vector} position 
      */
-    makeBot(position) {
-        this.bots.push(position)
+    makeBotPosition(position) {
+        this.botPositions.push(position)
     }
 
     getSurroundings(position) {
