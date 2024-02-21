@@ -52,14 +52,19 @@ test("Model does learn for positive experience", async () => {
     let chosenAction = model.chooseAction(state); // initial model choice
 
     let action = (chosenAction + 1) %  model.numActions // choose a different action for training
-    let reward = 2
+    let reward = 10
     let next_state = agent.getObservationTensor();
 
     expect(chosenAction).not.toBe(action);
 
+    let previousPrediction = model.predict([state]).dataSync();
+
     memory.addSample([state,action,reward,next_state]);
 
     await orchestrator.trainModel()
+
+    expect(model.predict([state]).dataSync()).not.toEqual(previousPrediction);
+    console.log("Why not different action? - pos ", model.predict([state]).dataSync(), " for action ", chosenAction, " previous predictions ", previousPrediction)
 
     expect(model.chooseAction(agent.getObservationTensor())).toBe(action);
 })
@@ -87,23 +92,27 @@ test("Model does not learn for neutral experience", async () => {
 
 test("Model does learn for negative experience", async () => {
     let agent = getAgent(new Vector(0,0), new Vector(0,0))
-    let model = getModel();
+    let model = getModel(batch_size=100);
     let memory = getMemory();
     let orchestrator = new Orchestrator([agent], model, memory)
 
     let state = agent.getObservationTensor();
     let chosenAction = model.chooseAction(state); // initial model choice
     let action = chosenAction // keep same action
-    let reward = -2
+    let reward = -10
     let next_state = agent.getObservationTensor();
 
-    memory.addSample([state,action,reward,next_state]);  
-
     let previousPrediction = model.predict([state]).dataSync();
+
+    for (let i = 0; i < 100; i++) {
+        memory.addSample([state,action,reward,next_state]);
+    }
+    // memory.addSample([state,action,reward,next_state]); 
 
     await orchestrator.trainModel()
 
     expect(model.predict([state]).dataSync()).not.toEqual(previousPrediction);
+    console.log("Why not different action? - neg ", model.predict([state]).dataSync(), " for action ", chosenAction, " previous predictions ", previousPrediction)
 
     expect(model.chooseAction(agent.getObservationTensor())).not.toBe(chosenAction); // expect a different action
 })
